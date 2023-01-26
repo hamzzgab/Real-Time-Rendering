@@ -18,6 +18,14 @@
 		2A2EAC7A29802B40009BFFB1 /* image_DXT.c in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC7129802B40009BFFB1 /* image_DXT.c */; };
 		2A2EAC7B29802B40009BFFB1 /* SOIL2.c in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC7229802B40009BFFB1 /* SOIL2.c */; };
 		2A2EAC7C29802CFC009BFFB1 /* res in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2A2EAC5C298029A8009BFFB1 /* res */; };
+		2A2EAC8C29804BFF009BFFB1 /* imgui_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC8129804BFE009BFFB1 /* imgui_tables.cpp */; };
+		2A2EAC8D29804BFF009BFFB1 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC8229804BFE009BFFB1 /* imgui.cpp */; };
+		2A2EAC8E29804BFF009BFFB1 /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC8429804BFE009BFFB1 /* imgui_widgets.cpp */; };
+		2A2EAC8F29804BFF009BFFB1 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC8529804BFE009BFFB1 /* imgui_draw.cpp */; };
+		2A2EAC9029804BFF009BFFB1 /* imgui_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC8729804BFE009BFFB1 /* imgui_demo.cpp */; };
+		2A2EAC952980507A009BFFB1 /* imgui_impl_glfw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC932980507A009BFFB1 /* imgui_impl_glfw.cpp */; };
+		2A2EAC962980507A009BFFB1 /* imgui_impl_opengl3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A2EAC942980507A009BFFB1 /* imgui_impl_opengl3.cpp */; };
+		2AD9DC562981A03D007A9DB1 /* libfreetype.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AD9DC552981A03D007A9DB1 /* libfreetype.6.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -75,6 +83,21 @@
 		2A2EAC7529802B40009BFFB1 /* wfETC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wfETC.h; sourceTree = "<group>"; };
 		2A2EAC7629802B40009BFFB1 /* stbi_DDS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stbi_DDS.h; sourceTree = "<group>"; };
 		2A2EAC7729802B40009BFFB1 /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
+		2A2EAC8129804BFE009BFFB1 /* imgui_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_tables.cpp; sourceTree = "<group>"; };
+		2A2EAC8229804BFE009BFFB1 /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
+		2A2EAC8329804BFE009BFFB1 /* imgui_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_internal.h; sourceTree = "<group>"; };
+		2A2EAC8429804BFE009BFFB1 /* imgui_widgets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_widgets.cpp; sourceTree = "<group>"; };
+		2A2EAC8529804BFE009BFFB1 /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
+		2A2EAC8629804BFE009BFFB1 /* imconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imconfig.h; sourceTree = "<group>"; };
+		2A2EAC8729804BFE009BFFB1 /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
+		2A2EAC8929804BFE009BFFB1 /* imstb_textedit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
+		2A2EAC8A29804BFE009BFFB1 /* imstb_rectpack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_rectpack.h; sourceTree = "<group>"; };
+		2A2EAC8B29804BFF009BFFB1 /* imstb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_truetype.h; sourceTree = "<group>"; };
+		2A2EAC9129804C34009BFFB1 /* imgui */ = {isa = PBXFileReference; lastKnownFileType = folder; path = imgui; sourceTree = "<group>"; };
+		2A2EAC932980507A009BFFB1 /* imgui_impl_glfw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_glfw.cpp; sourceTree = "<group>"; };
+		2A2EAC942980507A009BFFB1 /* imgui_impl_opengl3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_opengl3.cpp; sourceTree = "<group>"; };
+		2AD9DC5429819F98007A9DB1 /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Text.h; sourceTree = "<group>"; };
+		2AD9DC552981A03D007A9DB1 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../../../../opt/homebrew/Cellar/freetype/2.12.1/lib/libfreetype.6.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +105,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AD9DC562981A03D007A9DB1 /* libfreetype.6.dylib in Frameworks */,
 				2A2EAC59298028C6009BFFB1 /* libGLEW.2.2.0.dylib in Frameworks */,
 				2A2EAC57298028A0009BFFB1 /* libassimp.5.2.4.dylib in Frameworks */,
 				2A2EAC5529802882009BFFB1 /* libglfw.3.3.dylib in Frameworks */,
@@ -113,6 +137,8 @@
 		2A2EAC472980276C009BFFB1 /* Assignment-1 */ = {
 			isa = PBXGroup;
 			children = (
+				2A2EAC9129804C34009BFFB1 /* imgui */,
+				2A2EAC8029804BA9009BFFB1 /* imgui_backends */,
 				2A2EAC6329802B1D009BFFB1 /* SOIL2 */,
 				2A2EAC5C298029A8009BFFB1 /* res */,
 				2A2EAC482980276C009BFFB1 /* main.cpp */,
@@ -120,6 +146,7 @@
 				2A2EAC5F29802ACC009BFFB1 /* Shader.h */,
 				2A2EAC6129802AEE009BFFB1 /* Mesh.h */,
 				2A2EAC6029802AEE009BFFB1 /* Model.h */,
+				2AD9DC5429819F98007A9DB1 /* Text.h */,
 			);
 			path = "Assignment-1";
 			sourceTree = "<group>";
@@ -127,6 +154,7 @@
 		2A2EAC4F29802795009BFFB1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2AD9DC552981A03D007A9DB1 /* libfreetype.6.dylib */,
 				2A2EAC58298028C6009BFFB1 /* libGLEW.2.2.0.dylib */,
 				2A2EAC56298028A0009BFFB1 /* libassimp.5.2.4.dylib */,
 				2A2EAC5429802882009BFFB1 /* libglfw.3.3.dylib */,
@@ -161,6 +189,25 @@
 				2A2EAC7529802B40009BFFB1 /* wfETC.h */,
 			);
 			path = SOIL2;
+			sourceTree = "<group>";
+		};
+		2A2EAC8029804BA9009BFFB1 /* imgui_backends */ = {
+			isa = PBXGroup;
+			children = (
+				2A2EAC932980507A009BFFB1 /* imgui_impl_glfw.cpp */,
+				2A2EAC942980507A009BFFB1 /* imgui_impl_opengl3.cpp */,
+				2A2EAC8629804BFE009BFFB1 /* imconfig.h */,
+				2A2EAC8729804BFE009BFFB1 /* imgui_demo.cpp */,
+				2A2EAC8529804BFE009BFFB1 /* imgui_draw.cpp */,
+				2A2EAC8329804BFE009BFFB1 /* imgui_internal.h */,
+				2A2EAC8129804BFE009BFFB1 /* imgui_tables.cpp */,
+				2A2EAC8429804BFE009BFFB1 /* imgui_widgets.cpp */,
+				2A2EAC8229804BFE009BFFB1 /* imgui.cpp */,
+				2A2EAC8A29804BFE009BFFB1 /* imstb_rectpack.h */,
+				2A2EAC8929804BFE009BFFB1 /* imstb_textedit.h */,
+				2A2EAC8B29804BFF009BFFB1 /* imstb_truetype.h */,
+			);
+			path = imgui_backends;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -224,7 +271,14 @@
 				2A2EAC7929802B40009BFFB1 /* image_helper.c in Sources */,
 				2A2EAC492980276C009BFFB1 /* main.cpp in Sources */,
 				2A2EAC7A29802B40009BFFB1 /* image_DXT.c in Sources */,
+				2A2EAC8F29804BFF009BFFB1 /* imgui_draw.cpp in Sources */,
+				2A2EAC8E29804BFF009BFFB1 /* imgui_widgets.cpp in Sources */,
 				2A2EAC7B29802B40009BFFB1 /* SOIL2.c in Sources */,
+				2A2EAC952980507A009BFFB1 /* imgui_impl_glfw.cpp in Sources */,
+				2A2EAC8C29804BFF009BFFB1 /* imgui_tables.cpp in Sources */,
+				2A2EAC8D29804BFF009BFFB1 /* imgui.cpp in Sources */,
+				2A2EAC9029804BFF009BFFB1 /* imgui_demo.cpp in Sources */,
+				2A2EAC962980507A009BFFB1 /* imgui_impl_opengl3.cpp in Sources */,
 				2A2EAC7829802B40009BFFB1 /* wfETC.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -349,6 +403,7 @@
 					/opt/homebrew/Cellar/glew/2.2.0_1/include,
 					/opt/homebrew/Cellar/assimp/5.2.5/include,
 					/opt/homebrew/Cellar/glfw/3.3.8/include,
+					/opt/homebrew/Cellar/freetype/2.12.1/include/freetype2,
 					/opt/homebrew/Cellar/freeglut/3.2.2/include,
 					/opt/homebrew/Cellar/glm/0.9.9.8/include,
 					/usr/local/include,
@@ -359,6 +414,7 @@
 					/opt/homebrew/Cellar/glfw/3.3.8/lib,
 					/opt/homebrew/Cellar/assimp/5.2.5/lib,
 					/opt/homebrew/Cellar/glew/2.2.0_1/lib,
+					/opt/homebrew/Cellar/freetype/2.12.1/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -372,6 +428,7 @@
 					/opt/homebrew/Cellar/glew/2.2.0_1/include,
 					/opt/homebrew/Cellar/assimp/5.2.5/include,
 					/opt/homebrew/Cellar/glfw/3.3.8/include,
+					/opt/homebrew/Cellar/freetype/2.12.1/include/freetype2,
 					/opt/homebrew/Cellar/freeglut/3.2.2/include,
 					/opt/homebrew/Cellar/glm/0.9.9.8/include,
 					/usr/local/include,
@@ -382,6 +439,7 @@
 					/opt/homebrew/Cellar/glfw/3.3.8/lib,
 					/opt/homebrew/Cellar/assimp/5.2.5/lib,
 					/opt/homebrew/Cellar/glew/2.2.0_1/lib,
+					/opt/homebrew/Cellar/freetype/2.12.1/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
