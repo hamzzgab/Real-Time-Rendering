@@ -71,7 +71,12 @@ static LightDirection DefaultLightDirection;
 static bool BlinnEnabled = false;
 
 static float DarkenCoefficient = 0.8f;
-static float MaterialShininess = 32.0f;
+static float MaterialShininess = 12.0f;
+static int Layers = 5;
+
+bool phongModel = true;
+bool toonModel = false;
+bool minnaertModel = false;
 
 // Camera
 Camera camera( glm::vec3( 0.0f, 0.0f, 3.0f ) );
@@ -123,6 +128,8 @@ void toonLighting(Shader shader){
     
     glUniform3f( lightDirLoc, DefaultLightDirection.light_direction.x, DefaultLightDirection.light_direction.y, DefaultLightDirection.light_direction.z);
     glUniform3f( viewPosLoc,  camera.GetPosition( ).x, camera.GetPosition( ).y, camera.GetPosition( ).z );
+    
+    glUniform1i( glGetUniformLocation( shader.Program, "layers" ), Layers);
 }
 
 
@@ -258,100 +265,101 @@ int main( )
         glm::mat4 view = camera.GetViewMatrix( );
         
         GLfloat degRotation = -30.0f;
-        GLfloat amtScaling = 0.65f;
+        GLfloat amtScaling = 1.0f;
         
         glm::mat4 model = glm::mat4(1.0f);
         
-        if (!BlinnEnabled){
-            text.RenderText(textShader, "Phong Model", 115.0f, 500.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-        }else{
-            text.RenderText(textShader, "Blinn-Phong Model", 100.0f, 500.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+        if (phongModel){
+            // TEA POT
+            if (!BlinnEnabled){
+                text.RenderText(textShader, "Phong Model", 325.0f, 545.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+            }else{
+                text.RenderText(textShader, "Blinn-Phong Model", 310.0f, 545.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+            }
+            blinnPhongShader.Use( );
+            glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+            glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+            model = glm::mat4(1.0f);
+            model = glm::translate( model, glm::vec3( 0.0f, 0.75f, 0.0f ) ); // Translate it down a bit so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(amtScaling));
+            model = glm::rotate(model, glm::radians(degRotation), glm::vec3(-1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
+            glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+            chaiKaBatila.Draw( blinnPhongShader );
+            blinnPhongLighting( blinnPhongShader );
+            
+            // BALL
+            blinnPhongShader.Use( );
+            glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+            glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+            model = glm::mat4(1.0f);
+            model = glm::translate( model, glm::vec3( 0.0f, -0.75f, 0.0f ) );
+            model = glm::scale(model, glm::vec3(amtScaling));
+            model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
+            glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+            boll.Draw( blinnPhongShader );
+            blinnPhongLighting( blinnPhongShader );
+
         }
         
-        text.RenderText(textShader, "Toon Model", 350.0f, 500.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
-        text.RenderText(textShader, "Minnaert Model", 550.0f, 500.0f, 0.5f, glm::vec3(1.0f, 1.0f, 1.0f));
+        if (toonModel){
+            // TEA POT
+            text.RenderText(textShader, "Toon Model", 335.0f, 545.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+            toonShader.Use( );
+            glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+            glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+            model = glm::mat4(1.0f);
+            model = glm::translate( model, glm::vec3( 0.0f, 0.75f, 0.0f ) ); // Translate it down a bit so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(amtScaling));
+            model = glm::rotate(model, glm::radians(degRotation), glm::vec3(-1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
+            glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+            chaiKaBatila.Draw( toonShader );
+            toonLighting( toonShader );
+            
+            // BALL
+            toonShader.Use( );
+            glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+            glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+            model = glm::mat4(1.0f);
+            model = glm::translate( model, glm::vec3( 0.0f, -0.75f, 0.0f ) );
+            model = glm::scale(model, glm::vec3(amtScaling));
+            model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
+            glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+            boll.Draw( toonShader );
+            toonLighting( toonShader );
+
+        }
         
-        
-        
-        // TEA POT
-        blinnPhongShader.Use( );
-        glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-        glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-        model = glm::mat4(1.0f);
-        model = glm::translate( model, glm::vec3( -1.5f, 0.75f, 0.0f ) ); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(amtScaling));
-        model = glm::rotate(model, glm::radians(degRotation), glm::vec3(-1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
-        glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-        chaiKaBatila.Draw( blinnPhongShader );
-        blinnPhongLighting( blinnPhongShader );
-        
-        // TEA POT
-        toonShader.Use( );
-        glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-        glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-        model = glm::mat4(1.0f);
-        model = glm::translate( model, glm::vec3( 0.0f, 0.75f, 0.0f ) ); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(amtScaling));
-        model = glm::rotate(model, glm::radians(degRotation), glm::vec3(-1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
-        glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-        chaiKaBatila.Draw( toonShader );
-        toonLighting( toonShader );
-        
-        // TEA POT
-        minnaertShader.Use( );
-        glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-        glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-        model = glm::mat4(1.0f);
-        model = glm::translate( model, glm::vec3( 1.5f, 0.75f, 0.0f ) ); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(amtScaling));
-        model = glm::rotate(model, glm::radians(degRotation), glm::vec3(-1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
-        glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-        chaiKaBatila.Draw( minnaertShader );
-        minnaertLighting( minnaertShader );
-        
-        // -------------------------------------------------------------------------------------------------------------------------------------------------
-        
-        // -------------------------------------------------------------------------------------------------------------------------------------------------
-        
-//        // BALL
-//        blinnPhongShader.Use( );
-//        glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-//        glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-//        model = glm::mat4(1.0f);
-//        model = glm::translate( model, glm::vec3( -1.5f, -0.75f, 0.0f ) );
-//        model = glm::scale(model, glm::vec3(amtScaling));
-//        model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
-//        glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-//        boll.Draw( blinnPhongShader );
-//        blinnPhongLighting( blinnPhongShader );
-//
-//        // BALL
-//        toonShader.Use( );
-//        glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-//        glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-//        model = glm::mat4(1.0f);
-//        model = glm::translate( model, glm::vec3( 0.0f, -0.75f, 0.0f ) );
-//        model = glm::scale(model, glm::vec3(amtScaling));
-//        model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
-//        glUniformMatrix4fv( glGetUniformLocation( toonShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-//        boll.Draw( toonShader );
-//        toonLighting( toonShader );
-//
-//        // BALL
-//        minnaertShader.Use( );
-//        glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-//        glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-//        model = glm::mat4(1.0f);
-//        model = glm::translate( model, glm::vec3( 1.5f, -0.75f, 0.0f ) );
-//        model = glm::scale(model, glm::vec3(amtScaling));
-//        model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
-//        glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-//        boll.Draw( minnaertShader );
-//        minnaertLighting( minnaertShader );
-        
+        if (minnaertModel){
+            // TEA POT
+            text.RenderText(textShader, "Minnaert Model", 320.0f, 545.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+            minnaertShader.Use( );
+            glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+            glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+            model = glm::mat4(1.0f);
+            model = glm::translate( model, glm::vec3( 0.0f, 0.75f, 0.0f ) ); // Translate it down a bit so it's at the center of the scene
+            model = glm::scale(model, glm::vec3(amtScaling));
+            model = glm::rotate(model, glm::radians(degRotation), glm::vec3(-1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
+            glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+            chaiKaBatila.Draw( minnaertShader );
+            minnaertLighting( minnaertShader );
+            
+            // BALL
+            minnaertShader.Use( );
+            glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+            glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+            model = glm::mat4(1.0f);
+            model = glm::translate( model, glm::vec3( 0.0f, -0.75f, 0.0f ) );
+            model = glm::scale(model, glm::vec3(amtScaling));
+            model = glm::rotate(model, (GLfloat)glfwGetTime()*0.75f, glm::vec3(0.0f, 1.0f, 0.0f));
+            glUniformMatrix4fv( glGetUniformLocation( minnaertShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+            boll.Draw( minnaertShader );
+            minnaertLighting( minnaertShader );
+            
+        }
+
         RenderImGui();
         // Swap the buffers
         glfwSwapBuffers( window );
@@ -383,6 +391,25 @@ void DoMovement( )
     if ( keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT] )
     {
         camera.ProcessKeyboard( RIGHT, deltaTime );
+    }
+    
+    if ( keys[GLFW_KEY_P] )
+    {
+        phongModel = true;
+        toonModel = false;
+        minnaertModel = false;
+    }
+    if ( keys[GLFW_KEY_T] )
+    {
+        phongModel = false;
+        toonModel = true;
+        minnaertModel = false;
+    }
+    if ( keys[GLFW_KEY_M] )
+    {
+        phongModel = false;
+        toonModel = false;
+        minnaertModel = true;
     }
 }
 
@@ -550,8 +577,9 @@ void RenderImGui() {
             if (ImGui::BeginTable("LightAttributes", 3))
             {
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("Material Shininess", &MaterialShininess, 0.0, 250.0);
+                ImGui::SliderFloat("Material Shininess", &MaterialShininess, 1.0, 250.0);
                 ImGui::Checkbox("Blinn", &BlinnEnabled);
+                ImGui::SliderInt("Layers", &Layers, 1, 6);
                 ImGui::SliderFloat("Darken Coeff", &DarkenCoefficient, -2.0, 2.0);
                 ImGui::EndTable();
             }
