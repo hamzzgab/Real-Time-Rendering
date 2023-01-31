@@ -1,6 +1,6 @@
 # Demonstration
 
-The video demonstration for the assignment can be found on YouTube: https://www.youtube.com/watch?v=g2mE3FI-L6w
+The video demonstration for the assignment can be found on [YouTube](https://www.youtube.com/watch?v=g2mE3FI-L6w)
 
 # References
 
