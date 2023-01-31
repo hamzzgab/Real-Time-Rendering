@@ -5,6 +5,11 @@ This is the first assignment for Real-Time Rendering (CS7GV3) at Trinity College
 # Demonstration
 
 The video demonstration for the assignment can be found on [YouTube](https://www.youtube.com/watch?v=g2mE3FI-L6w)
+<p align='center'>
+  <a href="http://www.youtube.com/watch?feature=player_embedded&v=g2mE3FI-L6w" target="_blank">
+      <img src="http://img.youtube.com/vi/g2mE3FI-L6w/0.jpg" alt="Assignment-1 Real Time Rendering" width="240" height="180" border="10" />
+  </a>
+<p>
 
 # References
 
