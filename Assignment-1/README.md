@@ -1,4 +1,4 @@
-REFERENCES
+# References
 
 [1] Losasso “Surface Reflectance Models”, Frank Losasso (nVidia) http://web.cs.wpi.edu/~emmanuel/courses/cs563/S05/projects/surface_reflection_losasso.pdf
 
