@@ -2,6 +2,7 @@
 struct Material
 {
     sampler2D diffuse;
+    sampler2D ambient;
     sampler2D specular;
 
 };
@@ -32,11 +33,8 @@ uniform float shininess;
 
 void main()
 {
-    
-    
     // AMBIENT
-    vec3 ambient = vec3(0.0f, 0.5f, 0.1f);
-//    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
+    vec3 ambient = light.ambient * vec3(texture(material.ambient, TexCoords));
     
     // DIFFUSE
     vec3 norm = normalize(Normal);
@@ -61,7 +59,7 @@ void main()
         spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     }
 
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords)) / distance;
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords)) / distance * distance;
     
     color = vec4(ambient + diffuse + specular, 1.0f);
 }

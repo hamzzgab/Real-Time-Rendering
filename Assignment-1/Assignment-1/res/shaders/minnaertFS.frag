@@ -1,10 +1,9 @@
 #version 330 core
 struct Material
 {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
-    float shininess;
+    sampler2D ambient;
+    sampler2D diffuse;
+    sampler2D specular;
 };
 
 struct Light
@@ -22,6 +21,8 @@ in vec3 Normal;
 in vec2 TexCoords;
 
 uniform float darkenCoefficient;
+uniform float shininess;
+uniform bool blinn;
 
 out vec4 color;
 
@@ -31,26 +32,41 @@ uniform Light light;
 
 void main()
 {
+    // AMBIENT
+    vec3 ambient = light.ambient * vec3(texture(material.ambient, TexCoords));
     
-    
-    // AMBIENT - ka
-//    vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
-    vec3 ambient = material.ambient;
-    
-    // DIFFUSE - kd
+    // DIFFUSE
     vec3 norm = normalize(Normal);
     vec3 lightDir = light.direction - FragPos;
     float distance = length(lightDir);
-    lightDir = normalize(-lightDir);
+    lightDir = normalize(-light.direction);
+    
+    
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords)) / distance * distance;
+    
+    // SPECULAR
     vec3 viewDir = normalize(viewPos - FragPos);
     
     // minnaert
     float nDotL = dot(norm, lightDir);
     float nDotE = dot(norm, viewDir);
     
-    float intensity = max(clamp(nDotL, 0.0, 1.0) * pow(nDotL * nDotE, darkenCoefficient) / distance, 0);
-
-    vec3 result = ambient + intensity * material.diffuse * light.color;
+    float intensity = max(clamp(nDotL, 0.0, 1.0) * pow(nDotL * nDotE, darkenCoefficient) / distance * distance, 0);
+    
+    //BLINN
+    float spec = 0.0f;
+    if (blinn){
+        vec3 halfwayDir = normalize(lightDir + viewDir);
+        spec = pow(max(dot(Normal, halfwayDir), 0.0), shininess);
+    }else{
+        vec3 reflectDir = reflect(-lightDir, norm);
+        spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    }
+    
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords)) / distance * distance;
+    
+    vec3 result = ambient + intensity * diffuse + specular;
 
     color = vec4(result, 1.0);
 }
