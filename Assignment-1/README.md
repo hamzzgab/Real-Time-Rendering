@@ -1,3 +1,7 @@
+# About
+
+This is the first assignment for Real-Time Rendering (CS7GV3) at Trinity College Dublin. For this assignment, I have implemented 6 different Reflectance Models, i.e., Phong, Blinn Phong, Toon, Gooch, Minnaert, and the Cook-Torrance.
+
 # Demonstration
 
 The video demonstration for the assignment can be found on [YouTube](https://www.youtube.com/watch?v=g2mE3FI-L6w)
@@ -13,3 +17,5 @@ The video demonstration for the assignment can be found on [YouTube](https://www
 [4] Minnaert Model - https://github.com/brighteyedathene/Ngine
 
 [5] Cook Torrance Model - https://github.com/pboechat/cook_torrance
+
+[6] Learn OpenGL - https://learnopengl.com/
