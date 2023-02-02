@@ -1,8 +1,10 @@
-# About
+# Assignment 1
+
+## About
 
 This is the first assignment for Real-Time Rendering (CS7GV3) at Trinity College Dublin. For this assignment, I have implemented 6 different Reflectance Models, i.e., Phong, Blinn Phong, Toon, Gooch, Minnaert, and the Cook-Torrance.
 
-# Demonstration
+## Demonstration
 
 The video demonstration for the assignment can be found on [YouTube](https://www.youtube.com/watch?v=g2mE3FI-L6w)
 <p align='center'>
@@ -11,7 +13,7 @@ The video demonstration for the assignment can be found on [YouTube](https://www
   </a>
 <p>
 
-# References
+## References
 
 [1] Losasso “Surface Reflectance Models”, Frank Losasso (nVidia) http://web.cs.wpi.edu/~emmanuel/courses/cs563/S05/projects/surface_reflection_losasso.pdf
 
