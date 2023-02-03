@@ -5,7 +5,7 @@
  - [ ] Transmission may entail any of the effects discussed in the last lecture but most likely refraction
  - [ ] Include a Fresnel component in your shader
  - [ ] Include the chromatic dispersion effect 
- - [ ] Environment texture, cube map or sphere map in your scene which affects the appearance of your object
+ - [x] Environment texture, cube map or sphere map in your scene which affects the appearance of your object
 
 - [ ] Implement a scene with some rotating objects using the above shaders
   - [ ] Make the scene as photorealistic as possible
