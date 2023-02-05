@@ -66,7 +66,7 @@ int main( )
     glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
     
     // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow *window = glfwCreateWindow( WIDTH, HEIGHT, "LearnOpenGL", nullptr, nullptr );
+    GLFWwindow *window = glfwCreateWindow( WIDTH, HEIGHT, "Reflect On Yo Self", nullptr, nullptr );
     
     if ( nullptr == window )
     {
@@ -104,54 +104,6 @@ int main( )
     Shader shader( "res/shaders/cube.vs", "res/shaders/cube.frag" );
     Shader skyboxShader( "res/shaders/skybox.vs", "res/shaders/skybox.frag" );
 
-    /*
-    GLfloat skyboxVertices[] = {
-        // Positions
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-        
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-        
-        -1.0f,  1.0f, -1.0f,
-        1.0f,  1.0f, -1.0f,
-        1.0f,  1.0f,  1.0f,
-        1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
-        
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-        1.0f, -1.0f,  1.0f
-    };
-    */
-    
-    
     GLfloat skyboxVertices[] = {
             // positions
             -1.0f,  1.0f, -1.0f,
@@ -210,18 +162,22 @@ int main( )
     
     // Cubemap (Skybox)
     vector<const GLchar*> faces;
-    faces.push_back( "res/images/skybox/px.png" );
-    faces.push_back( "res/images/skybox/nx.png" );
-    faces.push_back( "res/images/skybox/py.png" );
-    faces.push_back( "res/images/skybox/ny.png" );
-    faces.push_back( "res/images/skybox/pz.png" );
-    faces.push_back( "res/images/skybox/nz.png" );
+    faces.push_back( "res/images/skybox/px.jpg" );
+    faces.push_back( "res/images/skybox/nx.jpg" );
+    faces.push_back( "res/images/skybox/py.jpg" );
+    faces.push_back( "res/images/skybox/ny.jpg" );
+    faces.push_back( "res/images/skybox/pz.jpg" );
+    faces.push_back( "res/images/skybox/nz.jpg" );
     GLuint cubemapTexture = TextureLoading::LoadCubemap( faces );
 
     
     glm::mat4 projection = glm::perspective( camera.GetZoom( ), ( float )SCREEN_WIDTH/( float )SCREEN_HEIGHT, 0.1f, 1000.0f );
     
     Model Monkey( "res/models/Monkey.obj" );
+    Model Cube( "res/models/Cube.obj" );
+    Model Circle( "res/models/Circle.obj" );
+    Model Bunny( "res/models/Bunny.obj" );
+    Model f16( "res/models/f16.obj" );
     
     // OpenGL state
     // ------------
@@ -252,12 +208,8 @@ int main( )
         shader.Use( );
         glUniformMatrix4fv( glGetUniformLocation( shader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
         glUniformMatrix4fv( glGetUniformLocation( shader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-        
-        glUniformMatrix3fv( glGetUniformLocation( shader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( glm::vec3(1.0f, 1.0f, 0.0f) ) );
-        
-        
         model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(0.5f));
+        model = glm::scale(model, glm::vec3(0.9f));
         model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::translate( model, glm::vec3( 0.0f, 0.0f, 0.0f ) );
         glUniformMatrix4fv( glGetUniformLocation( shader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
@@ -265,6 +217,18 @@ int main( )
         glUniformMatrix3fv( camLoc, 1, GL_FALSE, glm::value_ptr( camera.GetPosition() ) );
         Monkey.Draw( shader );
         
+//        shader.Use( );
+//        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+//        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+//        model = glm::mat4(1.0f);
+//        model = glm::scale(model, glm::vec3(0.9f));
+//        model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+//        model = glm::translate( model, glm::vec3( 0.0f, -4.0f, 0.0f ) );
+//        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+//        camLoc = glGetUniformLocation( shader.Program, "cameraPos" );
+//        glUniformMatrix3fv( camLoc, 1, GL_FALSE, glm::value_ptr( camera.GetPosition() ) );
+//        Bunny.Draw( shader );
+//        
         
         // Draw skybox as last
         glDepthFunc( GL_LEQUAL );  // Change depth function so depth test passes when values are equal to depth buffer's content
