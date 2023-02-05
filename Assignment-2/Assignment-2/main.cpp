@@ -45,6 +45,9 @@ void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mod
 void MouseCallback( GLFWwindow *window, double xPos, double yPos );
 void DoMovement( );
 
+void InitializeImGui();
+void RenderImGui();
+
 // Camera
 Camera camera( glm::vec3( 0.0f, 0.0f, 3.0f ) );
 bool keys[1024];
@@ -53,6 +56,16 @@ bool firstMouse = true;
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+
+glm::vec3 RefractiveIndexColor = glm::vec3(0.0f, 0.0f, 0.0f);
+GLfloat RefractiveIndex = 1.52f;
+GLfloat bias = 0.0f;
+GLfloat scale = 0.0f;
+GLfloat power = 0.0f;
+
+bool refractIt = true;
+
+static GLFWwindow *window = nullptr;
 
 int main( )
 {
@@ -65,8 +78,7 @@ int main( )
     glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
     glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
     
-    // Create a GLFWwindow object that we can use for GLFW's functions
-    GLFWwindow *window = glfwCreateWindow( WIDTH, HEIGHT, "Reflect On Yo Self", nullptr, nullptr );
+    window = glfwCreateWindow( WIDTH, HEIGHT, "Reflect On Yo Self", nullptr, nullptr );
     
     if ( nullptr == window )
     {
@@ -82,8 +94,8 @@ int main( )
     
     // Set the required callback functions
     glfwSetKeyCallback( window, KeyCallback );
-    glfwSetCursorPosCallback( window, MouseCallback );
-    glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+//    glfwSetCursorPosCallback( window, MouseCallback );
+//    glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
     
     // Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
     glewExperimental = GL_TRUE;
@@ -101,7 +113,8 @@ int main( )
     glEnable( GL_DEPTH_TEST );
     
     // Setup and compile our shaders
-    Shader shader( "res/shaders/cube.vs", "res/shaders/cube.frag" );
+    Shader Reflection( "res/shaders/reflection.vs", "res/shaders/reflection.frag" );
+    Shader Refraction( "res/shaders/refraction.vs", "res/shaders/refraction.frag" );
     Shader skyboxShader( "res/shaders/skybox.vs", "res/shaders/skybox.frag" );
 
     GLfloat skyboxVertices[] = {
@@ -179,6 +192,8 @@ int main( )
     Model Bunny( "res/models/Bunny.obj" );
     Model f16( "res/models/f16.obj" );
     
+    InitializeImGui();
+    
     // OpenGL state
     // ------------
     glEnable(GL_CULL_FACE);
@@ -193,11 +208,9 @@ int main( )
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         
-        // Check and call events
         glfwPollEvents( );
         DoMovement( );
         
-        // Clear the colorbuffer
         glClearColor( 0.05f, 0.05f, 0.05f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         
@@ -205,52 +218,64 @@ int main( )
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.GetViewMatrix();
         
-        shader.Use( );
-        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-        model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(0.9f));
-        model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::translate( model, glm::vec3( 0.0f, 0.0f, 0.0f ) );
-        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-        GLint camLoc = glGetUniformLocation( shader.Program, "cameraPos" );
-        glUniformMatrix3fv( camLoc, 1, GL_FALSE, glm::value_ptr( camera.GetPosition() ) );
-        Monkey.Draw( shader );
-        
-//        shader.Use( );
-//        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-//        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-//        model = glm::mat4(1.0f);
-//        model = glm::scale(model, glm::vec3(0.9f));
-//        model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-//        model = glm::translate( model, glm::vec3( 0.0f, -4.0f, 0.0f ) );
-//        glUniformMatrix4fv( glGetUniformLocation( shader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-//        camLoc = glGetUniformLocation( shader.Program, "cameraPos" );
-//        glUniformMatrix3fv( camLoc, 1, GL_FALSE, glm::value_ptr( camera.GetPosition() ) );
-//        Bunny.Draw( shader );
-//        
+        if (refractIt){
+            Refraction.Use( );
+            glUniformMatrix4fv( glGetUniformLocation( Refraction.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+            glUniformMatrix4fv( glGetUniformLocation( Refraction.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+            model = glm::mat4(1.0f);
+            model = glm::scale(model, glm::vec3(0.9f));
+            model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::translate( model, glm::vec3( 0.0f, 0.0f, 0.0f ) );
+            glUniformMatrix4fv( glGetUniformLocation( Refraction.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+            GLint camLoc = glGetUniformLocation( Refraction.Program, "cameraPos" );
+            glUniform3f( glGetUniformLocation( Refraction.Program, "refractiveIndexRGB" ), RefractiveIndexColor.r, RefractiveIndexColor.g, RefractiveIndexColor.b );
+            glUniform1f( glGetUniformLocation( Reflection.Program, "refractiveIndex" ), RefractiveIndex );
+            glUniform1f( glGetUniformLocation( Refraction.Program, "bias" ), bias );
+            glUniform1f( glGetUniformLocation( Refraction.Program, "scale" ), scale );
+            glUniform1f( glGetUniformLocation( Refraction.Program, "power" ), power );
+            glUniformMatrix3fv( camLoc, 1, GL_FALSE, glm::value_ptr( camera.GetPosition() ) );
+            Monkey.Draw( Refraction );
+        }else{
+            Reflection.Use( );
+            glUniformMatrix4fv( glGetUniformLocation( Reflection.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+            glUniformMatrix4fv( glGetUniformLocation( Reflection.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+            model = glm::mat4(1.0f);
+            model = glm::scale(model, glm::vec3(0.9f));
+            model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::translate( model, glm::vec3( 0.0f, 0.0f, 0.0f ) );
+            glUniformMatrix4fv( glGetUniformLocation( Reflection.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+            GLint camLoc = glGetUniformLocation( Reflection.Program, "cameraPos" );
+            glUniform3f( glGetUniformLocation( Reflection.Program, "refractiveIndexRGB" ), RefractiveIndexColor.r, RefractiveIndexColor.g, RefractiveIndexColor.b );
+            glUniform1f( glGetUniformLocation( Reflection.Program, "refractiveIndex" ), RefractiveIndex );
+            glUniform1f( glGetUniformLocation( Reflection.Program, "bias" ), bias );
+            glUniform1f( glGetUniformLocation( Reflection.Program, "scale" ), scale );
+            glUniform1f( glGetUniformLocation( Reflection.Program, "power" ), power );
+            glUniformMatrix3fv( camLoc, 1, GL_FALSE, glm::value_ptr( camera.GetPosition() ) );
+            Monkey.Draw( Reflection );
+        }
+
         
         // Draw skybox as last
-        glDepthFunc( GL_LEQUAL );  // Change depth function so depth test passes when values are equal to depth buffer's content
+        glDepthFunc( GL_LEQUAL );
         skyboxShader.Use( );
-        view = glm::mat4( glm::mat3( camera.GetViewMatrix( ) ) );    // Remove any translation component of the view matrix
-        
+        view = glm::mat4( glm::mat3( camera.GetViewMatrix( ) ) );
         glUniformMatrix4fv( glGetUniformLocation( skyboxShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
         glUniformMatrix4fv( glGetUniformLocation( skyboxShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-        
-        // skybox cube
         glBindVertexArray( skyboxVAO );
         glBindTexture( GL_TEXTURE_CUBE_MAP, cubemapTexture );
         glDrawArrays( GL_TRIANGLES, 0, 36 );
         glBindVertexArray( 0 );
-        glDepthFunc( GL_LESS ); // Set depth function back to default
-
-        // Swap the buffers
+        glDepthFunc( GL_LESS );
+        
+        RenderImGui();
+        
         glfwSwapBuffers( window );
     }
     
     glDeleteVertexArrays(1, &skyboxVAO);
     glDeleteBuffers(1, &skyboxVBO);
+    
+ 
     
     glfwTerminate( );
     return 0;
@@ -313,7 +338,7 @@ void MouseCallback( GLFWwindow *window, double xPos, double yPos )
     }
     
     GLfloat xOffset = xPos - lastX;
-    GLfloat yOffset = lastY - yPos;  // Reversed since y-coordinates go from bottom to left
+    GLfloat yOffset = lastY - yPos;
     
     lastX = xPos;
     lastY = yPos;
@@ -321,3 +346,62 @@ void MouseCallback( GLFWwindow *window, double xPos, double yPos )
     camera.ProcessMouseMovement( xOffset, yOffset );
 }
 
+
+void InitializeImGui() {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImFontAtlas* atlas = io.Fonts;
+    ImFontConfig* config = new ImFontConfig;
+    config->GlyphRanges = atlas->GetGlyphRangesDefault();
+    config->PixelSnapH = true;
+    //atlas->AddFontFromFileTTF("./GameResources/Fonts/CascadiaMono.ttf", 14, config);
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(IMGUI_GLSL_VERSION);
+}
+
+void RenderImGui() {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    ImGui::Begin("ImGui Debugger");
+    if (ImGui::CollapsingHeader("Global Light")) {
+        if (ImGui::TreeNode("Refractive Index Color")) {
+            if (ImGui::BeginTable("RefractionColor", 3))
+            {
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("R", &RefractiveIndexColor.r, -1.0, 1.0f);
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("G", &RefractiveIndexColor.g, -1.0, 1.0f);
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("B", &RefractiveIndexColor.b, -1.0, 1.0f);
+                ImGui::EndTable();
+            }
+            ImGui::TreePop();
+        }
+        
+        if (ImGui::TreeNode("Refractive Index Params")) {
+            if (ImGui::BeginTable("RefractionParams", 1))
+            {
+                ImGui::TableNextColumn();
+                ImGui::Checkbox("Refraction", &refractIt);
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("Refractive Index", &RefractiveIndex, -2.0, 2.0f);
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("Bias", &bias, -1.0, 1.0f);
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("Scale", &scale, -1.0, 1.0f);
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("Power", &power, -1.0, 1.0f);
+                ImGui::EndTable();
+            }
+            ImGui::TreePop();
+        }
+        
+    }
+ 
+    ImGui::End();
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
