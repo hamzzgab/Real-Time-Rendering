@@ -17,3 +17,5 @@ The video demonstration for the assignment can be found on [YouTube](https://www
 ## References
 
 [1] Addison Wesley OpenGL Shading Language https://www.scss.tcd.ie/Michael.Manzke/CS7055/GLSL/GLSL-3rdEd-refraction.pdf
+
+[2] Learn OpenGL - https://learnopengl.com/
