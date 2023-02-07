@@ -37,7 +37,7 @@
 
 
 // Properties
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 1600, HEIGHT = 1000;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 // Function prototypes
@@ -57,15 +57,32 @@ bool firstMouse = true;
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
-glm::vec3 RefractiveIndexColor = glm::vec3(0.0f, 0.0f, 0.0f);
-GLfloat RefractiveIndex = 1.52f;
-GLfloat bias = 0.0f;
-GLfloat scale = 0.0f;
-GLfloat power = 0.0f;
+glm::vec3 RefractiveIndexColor = glm::vec3(0.65f, 0.67f, 0.69f);
+GLfloat FresnelPower = 0.0f;
 
-bool refractIt = true;
+bool mouseEnabled = true;
+
+bool CircleDraw = true;
+bool CubeDraw = false;
+bool MonkeyDraw = false;
+bool TeaPotDraw = false;
 
 static GLFWwindow *window = nullptr;
+
+
+void refractance_with_chromatic_abberation(Shader shader, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
+{
+    glUniformMatrix4fv( glGetUniformLocation( shader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+    glUniformMatrix4fv( glGetUniformLocation( shader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+    glUniformMatrix4fv( glGetUniformLocation( shader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+    
+    glm::vec3 camPos = camera.GetPosition();
+    glUniform3f( glGetUniformLocation( shader.Program, "fCameraPosition" ), camPos.x, camPos.y, camPos.z);
+    glUniform3f( glGetUniformLocation( shader.Program, "refractiveIndexRGB" ), RefractiveIndexColor.r, RefractiveIndexColor.g, RefractiveIndexColor.b );
+    glUniform1f( glGetUniformLocation( shader.Program, "FresnelPower" ), FresnelPower );
+}
+
+
 
 int main( )
 {
@@ -76,9 +93,9 @@ int main( )
     glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
     glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
     glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
-    glfwWindowHint( GLFW_RESIZABLE, GL_FALSE );
+    glfwWindowHint( GLFW_RESIZABLE, GL_TRUE );
     
-    window = glfwCreateWindow( WIDTH, HEIGHT, "Reflect On Yo Self", nullptr, nullptr );
+    window = glfwCreateWindow( WIDTH, HEIGHT, "Transmittance Effects", nullptr, nullptr );
     
     if ( nullptr == window )
     {
@@ -92,27 +109,21 @@ int main( )
     
     glfwGetFramebufferSize( window, &SCREEN_WIDTH, &SCREEN_HEIGHT );
     
-    // Set the required callback functions
     glfwSetKeyCallback( window, KeyCallback );
-//    glfwSetCursorPosCallback( window, MouseCallback );
-//    glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
-    
-    // Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
+    glfwSetCursorPosCallback( window, MouseCallback );
+    glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+
     glewExperimental = GL_TRUE;
-    // Initialize GLEW to setup the OpenGL Function pointers
     if ( GLEW_OK != glewInit( ) )
     {
         std::cout << "Failed to initialize GLEW" << std::endl;
         return EXIT_FAILURE;
     }
     
-    // Define the viewport dimensions
     glViewport( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
     
-    // OpenGL options
     glEnable( GL_DEPTH_TEST );
     
-    // Setup and compile our shaders
     Shader Reflection( "res/shaders/reflection.vs", "res/shaders/reflection.frag" );
     Shader Refraction( "res/shaders/refraction.vs", "res/shaders/refraction.frag" );
     Shader skyboxShader( "res/shaders/skybox.vs", "res/shaders/skybox.frag" );
@@ -175,12 +186,12 @@ int main( )
     
     // Cubemap (Skybox)
     vector<const GLchar*> faces;
-    faces.push_back( "res/images/skybox/px.jpg" );
-    faces.push_back( "res/images/skybox/nx.jpg" );
-    faces.push_back( "res/images/skybox/py.jpg" );
-    faces.push_back( "res/images/skybox/ny.jpg" );
-    faces.push_back( "res/images/skybox/pz.jpg" );
-    faces.push_back( "res/images/skybox/nz.jpg" );
+    faces.push_back( "res/images/skybox/Tower/px.png" );
+    faces.push_back( "res/images/skybox/Tower/nx.png" );
+    faces.push_back( "res/images/skybox/Tower/py.png" );
+    faces.push_back( "res/images/skybox/Tower/ny.png" );
+    faces.push_back( "res/images/skybox/Tower/pz.png" );
+    faces.push_back( "res/images/skybox/Tower/nz.png" );
     GLuint cubemapTexture = TextureLoading::LoadCubemap( faces );
 
     
@@ -191,6 +202,7 @@ int main( )
     Model Circle( "res/models/Circle.obj" );
     Model Bunny( "res/models/Bunny.obj" );
     Model f16( "res/models/f16.obj" );
+    Model TeaPot( "res/models/TeaPot_Plane.obj" );
     
     InitializeImGui();
     
@@ -199,7 +211,14 @@ int main( )
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    
+    
+    Shader textShader("res/shaders/text.vs", "res/shaders/text.frag");
+    textShader.Use();
+    glm::mat4 projection_text = glm::ortho(0.0f, (float)SCREEN_WIDTH, 0.0f, (float)SCREEN_HEIGHT);
+    glUniformMatrix4fv(glGetUniformLocation(textShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection_text));
+    
+    Text text;
     // Game loop
     while( !glfwWindowShouldClose( window ) )
     {
@@ -214,45 +233,51 @@ int main( )
         glClearColor( 0.05f, 0.05f, 0.05f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         
+        if (!mouseEnabled)
+        {
+            glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
+        }
+        else
+        {
+            glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+        }
+        
         
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.GetViewMatrix();
         
-        if (refractIt){
-            Refraction.Use( );
-            glUniformMatrix4fv( glGetUniformLocation( Refraction.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-            glUniformMatrix4fv( glGetUniformLocation( Refraction.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-            model = glm::mat4(1.0f);
-            model = glm::scale(model, glm::vec3(0.9f));
-            model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::translate( model, glm::vec3( 0.0f, 0.0f, 0.0f ) );
-            glUniformMatrix4fv( glGetUniformLocation( Refraction.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-            GLint camLoc = glGetUniformLocation( Refraction.Program, "cameraPos" );
-            glUniform3f( glGetUniformLocation( Refraction.Program, "refractiveIndexRGB" ), RefractiveIndexColor.r, RefractiveIndexColor.g, RefractiveIndexColor.b );
-            glUniform1f( glGetUniformLocation( Reflection.Program, "refractiveIndex" ), RefractiveIndex );
-            glUniform1f( glGetUniformLocation( Refraction.Program, "bias" ), bias );
-            glUniform1f( glGetUniformLocation( Refraction.Program, "scale" ), scale );
-            glUniform1f( glGetUniformLocation( Refraction.Program, "power" ), power );
-            glUniformMatrix3fv( camLoc, 1, GL_FALSE, glm::value_ptr( camera.GetPosition() ) );
-            Monkey.Draw( Refraction );
-        }else{
-            Reflection.Use( );
-            glUniformMatrix4fv( glGetUniformLocation( Reflection.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-            glUniformMatrix4fv( glGetUniformLocation( Reflection.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-            model = glm::mat4(1.0f);
-            model = glm::scale(model, glm::vec3(0.9f));
-            model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::translate( model, glm::vec3( 0.0f, 0.0f, 0.0f ) );
-            glUniformMatrix4fv( glGetUniformLocation( Reflection.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-            GLint camLoc = glGetUniformLocation( Reflection.Program, "cameraPos" );
-            glUniform3f( glGetUniformLocation( Reflection.Program, "refractiveIndexRGB" ), RefractiveIndexColor.r, RefractiveIndexColor.g, RefractiveIndexColor.b );
-            glUniform1f( glGetUniformLocation( Reflection.Program, "refractiveIndex" ), RefractiveIndex );
-            glUniform1f( glGetUniformLocation( Reflection.Program, "bias" ), bias );
-            glUniform1f( glGetUniformLocation( Reflection.Program, "scale" ), scale );
-            glUniform1f( glGetUniformLocation( Reflection.Program, "power" ), power );
-            glUniformMatrix3fv( camLoc, 1, GL_FALSE, glm::value_ptr( camera.GetPosition() ) );
-            Monkey.Draw( Reflection );
+        GLfloat amtScaling = 0.7f;
+        
+        glm::vec3 textColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        GLfloat textScaling = 0.3f;
+        
+        Refraction.Use( );
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(amtScaling));
+        model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+        
+        refractance_with_chromatic_abberation(Refraction, model, view, projection);
+        
+        if (CubeDraw)
+        {
+            Cube.Draw( Refraction );
         }
+        
+        if (CircleDraw)
+        {
+            Circle.Draw( Refraction );
+        }
+        
+        if (MonkeyDraw)
+        {
+            Monkey.Draw( Refraction );
+        }
+        
+        if (TeaPotDraw)
+        {
+            TeaPot.Draw( Refraction );
+        }
+        
 
         
         // Draw skybox as last
@@ -266,7 +291,16 @@ int main( )
         glDrawArrays( GL_TRIANGLES, 0, 36 );
         glBindVertexArray( 0 );
         glDepthFunc( GL_LESS );
+
+        text.RenderText(textShader, "Fresnel: " + to_string(FresnelPower), 10.0f, 30.0f, textScaling, textColor);
+        text.RenderText(textShader, "Refrative Index: (" +
+                        to_string(RefractiveIndexColor.r) +", "+
+                        to_string(RefractiveIndexColor.g) +", "+
+                        to_string(RefractiveIndexColor.b) +")" , 10.0f, 10.0f, textScaling, textColor);
+    
         
+        
+
         RenderImGui();
         
         glfwSwapBuffers( window );
@@ -274,8 +308,6 @@ int main( )
     
     glDeleteVertexArrays(1, &skyboxVAO);
     glDeleteBuffers(1, &skyboxVBO);
-    
- 
     
     glfwTerminate( );
     return 0;
@@ -305,6 +337,47 @@ void DoMovement( )
     {
         camera.ProcessKeyboard( RIGHT, deltaTime );
     }
+    
+    if ( keys[GLFW_KEY_1] )
+    {
+        CircleDraw = true;
+        CubeDraw = false;
+        MonkeyDraw = false;
+        TeaPotDraw = false;
+    }
+    
+    if ( keys[GLFW_KEY_2] )
+    {
+        CircleDraw = false;
+        CubeDraw = true;
+        MonkeyDraw = false;
+        TeaPotDraw = false;
+    }
+    
+    if ( keys[GLFW_KEY_3] )
+    {
+        CircleDraw = false;
+        CubeDraw = false;
+        MonkeyDraw = true;
+        TeaPotDraw = false;
+    }
+    
+    if ( keys[GLFW_KEY_4] )
+    {
+        CircleDraw = false;
+        CubeDraw = false;
+        MonkeyDraw = false;
+        TeaPotDraw = true;
+    }
+    
+    if ( keys[GLFW_KEY_M] )
+    {
+        mouseEnabled = false;
+    }
+    if ( keys[GLFW_KEY_C] )
+    {
+        mouseEnabled = true;
+    }
 }
 
 // Is called whenever a key is pressed/released via GLFW
@@ -330,20 +403,23 @@ void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mod
 
 void MouseCallback( GLFWwindow *window, double xPos, double yPos )
 {
-    if ( firstMouse )
+    if (mouseEnabled)
     {
+        if ( firstMouse )
+        {
+            lastX = xPos;
+            lastY = yPos;
+            firstMouse = false;
+        }
+        
+        GLfloat xOffset = xPos - lastX;
+        GLfloat yOffset = lastY - yPos;
+        
         lastX = xPos;
         lastY = yPos;
-        firstMouse = false;
+        
+        camera.ProcessMouseMovement( xOffset, yOffset );
     }
-    
-    GLfloat xOffset = xPos - lastX;
-    GLfloat yOffset = lastY - yPos;
-    
-    lastX = xPos;
-    lastY = yPos;
-    
-    camera.ProcessMouseMovement( xOffset, yOffset );
 }
 
 
@@ -366,39 +442,22 @@ void RenderImGui() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGui::Begin("ImGui Debugger");
-    if (ImGui::CollapsingHeader("Global Light")) {
-        if (ImGui::TreeNode("Refractive Index Color")) {
-            if (ImGui::BeginTable("RefractionColor", 3))
+    if (ImGui::CollapsingHeader("Refraction")) {
+        if (ImGui::TreeNode("Params")) {
+            if (ImGui::BeginTable("RefractionColor", 1))
             {
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("R", &RefractiveIndexColor.r, -1.0, 1.0f);
+                ImGui::SliderFloat("R", &RefractiveIndexColor.r, 0.0, 1.0f);
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("G", &RefractiveIndexColor.g, -1.0, 1.0f);
+                ImGui::SliderFloat("G", &RefractiveIndexColor.g, 0.0, 1.0f);
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("B", &RefractiveIndexColor.b, -1.0, 1.0f);
+                ImGui::SliderFloat("B", &RefractiveIndexColor.b, 0.0, 1.0f);
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("Fresnel Power", &FresnelPower, 0.0f, 5.0f);
                 ImGui::EndTable();
             }
             ImGui::TreePop();
         }
-        
-        if (ImGui::TreeNode("Refractive Index Params")) {
-            if (ImGui::BeginTable("RefractionParams", 1))
-            {
-                ImGui::TableNextColumn();
-                ImGui::Checkbox("Refraction", &refractIt);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Refractive Index", &RefractiveIndex, -2.0, 2.0f);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Bias", &bias, -1.0, 1.0f);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Scale", &scale, -1.0, 1.0f);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Power", &power, -1.0, 1.0f);
-                ImGui::EndTable();
-            }
-            ImGui::TreePop();
-        }
-        
     }
  
     ImGui::End();

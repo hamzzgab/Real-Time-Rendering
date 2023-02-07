@@ -3,19 +3,10 @@
 out vec4 FragColor;
 
 in vec3 Position;
-in vec3 Normal; // this should be normalized
-//in vec3 TexCoords;
+in vec3 Normal;
 
 uniform samplerCube skybox;
 uniform vec3 viewPos;
-
-uniform vec3 refractiveIndexRGB;
-uniform float refractiveIndex;
-uniform float bias;
-uniform float scale;
-uniform float power;
-
-bool reflectIt;
 
 void main()
 {

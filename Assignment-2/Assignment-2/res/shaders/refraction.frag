@@ -2,49 +2,42 @@
 
 out vec4 FragColor;
 
-in vec3 Position;
-in vec3 Normal; // this should be normalized
+in vec3 fFragPos;
+in vec3 fNormal; // this should be normalized
 //in vec3 TexCoords;
 
 uniform samplerCube skybox;
-uniform vec3 viewPos;
+uniform vec3 fCameraPosition;
 
+uniform float FresnelPower = 1.0f;
 uniform vec3 refractiveIndexRGB;
-uniform float refractiveIndex;
-uniform float bias;
-uniform float scale;
-uniform float power;
 
-bool reflectIt;
 
 void main()
 {
-    vec3 I = normalize(Position - viewPos);
-    
-    vec3 refl = reflect(-I, normalize(Normal));
-    vec3 reflectSample = texture(skybox, refl).rgb;
-    
-    float ratio = 1/refractiveIndex;
-    
-    // Simple refraction
-//        vec3 refr = refract(I, normalize(Normal), ratio);
-//        vec3 refractSample = texture(skybox, refr).rgb;
+   vec3 I = normalize(fFragPos - fCameraPosition);
 
-    // Refraction with chromatic dispersion
-    vec3 refrR = refract(I, Normal, refractiveIndexRGB.r);
-    vec3 refrG = refract(I, Normal, refractiveIndexRGB.g);
-    vec3 refrB = refract(I, Normal, refractiveIndexRGB.b);
+   vec3 nNormal = normalize(fNormal);
+   float F = ((1.0 - refractiveIndexRGB.g) * (1.0 - refractiveIndexRGB.g)) / ((1.0 + refractiveIndexRGB.g) * (1.0 + refractiveIndexRGB.g));
 
-    vec3 refractSample;
-    refractSample.r = texture(skybox, refrR).r;
-    refractSample.g = texture(skybox, refrG).g;
-    refractSample.b = texture(skybox, refrB).b;
+   float Ratio = F + (1.0 - F) * pow((1.0 - dot(-I, nNormal)), FresnelPower);
 
-    // Reflection Coefficient
-    float reflectionCoefficient = max(0, min(1, bias + scale * pow(1 + dot(I, Normal), power) ));
-    vec3 result = reflectionCoefficient * reflectSample + ( 1 - reflectionCoefficient) * refractSample;
+   vec3 RefractR = refract(I, nNormal, refractiveIndexRGB.r);
+   vec3 RefractG = refract(I, nNormal, refractiveIndexRGB.g);
+   vec3 RefractB = refract(I, nNormal, refractiveIndexRGB.b);
 
-    
-    FragColor = vec4(result, 1.0);
+   vec3 Reflect = reflect(I, nNormal);
 
+
+   vec3 refractColor;
+   refractColor.r = texture(skybox, RefractR).r;
+   refractColor.g = texture(skybox, RefractG).g;
+   refractColor.b = texture(skybox, RefractB).b;
+
+   vec3 reflectColor = texture(skybox, Reflect).rgb;
+
+  vec3 result = mix(reflectColor, refractColor, Ratio);
+
+   FragColor = vec4(result, 1.0);
+//    FragColor = vec4(vec3(FresnelPower), 1.0);
 }
