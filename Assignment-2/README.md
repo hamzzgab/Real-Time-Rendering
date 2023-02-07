@@ -3,7 +3,7 @@
 
 ## About
 
-This is the second assignment for Real-Time Rendering (CS7GV3) at Trinity College Dublin. For this assignment, I have implemented Reflectance, Refractance using a Fresnel Component along with Chromatic Aberration
+This is the second assignment for Real-Time Rendering (CS7GV3) at Trinity College Dublin. For this assignment, I have implemented Reflectance, Refractance using a Fresnel Component along with Chromatic Aberration.
 
 ## Demonstration
 
