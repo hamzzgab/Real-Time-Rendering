@@ -11,6 +11,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace std;
+GLfloat LodBias = 0.0f;
+
+bool NearNear = false;
+bool NearLinear = false;
+
+bool LinearNear = false;
+bool LinearLinear = true;
+
+bool MagLinear = false;
+bool MagNearest = true;
 
 // [2] Farhaan Hussain. (2016, August 28). Modern OpenGL 3.0+ Tutorials [Playlist]. YouTube. https://www.youtube.com/playlist?list=PLRtjMdoYXLf6zUMDJVRZYV-6g6n62vet8
 struct Vertex
@@ -82,6 +92,51 @@ public:
             glUniform1i( glGetUniformLocation( shader.Program, ( name + number ).c_str( ) ), i );
             
             glBindTexture( GL_TEXTURE_2D, this->textures[i].id );
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, LodBias);
+            
+            /*
+             NearLinearNear
+             NearNearNear
+             
+             NearLinearLinear
+             NearNearLinear
+             
+             LinearNearNear
+             LinearLinearNear
+             
+             LinearNearLinear
+             LinearLinearLinear
+             */
+            
+            if (NearNear)
+            {
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST );
+            }
+            if (NearLinear)
+            {
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR );
+            }
+            
+            if (LinearNear)
+            {
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST );
+            }
+            if (LinearLinear)
+            {
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+            }
+            
+            if (MagLinear)
+            {
+                MagNearest = false;
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            }
+            if (MagNearest)
+            {
+                MagLinear = false;
+                glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            }
+            
         }
         
         

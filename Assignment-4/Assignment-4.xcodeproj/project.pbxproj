@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A2D3F7029A2556C001582BD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2A2D3F6F29A2556C001582BD /* main.cpp */; };
 		2AEE86B6299F9AA70061ED99 /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2AEE86AC299F9AA70061ED99 /* imgui_widgets.cpp */; };
 		2AEE86B7299F9AA70061ED99 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2AEE86AE299F9AA70061ED99 /* imgui.cpp */; };
 		2AEE86B8299F9AA70061ED99 /* imgui_impl_opengl3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2AEE86B0299F9AA70061ED99 /* imgui_impl_opengl3.cpp */; };
@@ -18,7 +19,6 @@
 		2AEE86D3299F9AAD0061ED99 /* image_DXT.c in Sources */ = {isa = PBXBuildFile; fileRef = 2AEE86C1299F9AAD0061ED99 /* image_DXT.c */; };
 		2AEE86D4299F9AAD0061ED99 /* SOIL2.c in Sources */ = {isa = PBXBuildFile; fileRef = 2AEE86C3299F9AAD0061ED99 /* SOIL2.c */; };
 		2AEE86D5299F9AAD0061ED99 /* wfETC.c in Sources */ = {isa = PBXBuildFile; fileRef = 2AEE86CD299F9AAD0061ED99 /* wfETC.c */; };
-		2AEE86DC299F9AE20061ED99 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2AEE86DB299F9AE20061ED99 /* main.cpp */; };
 		2AEE86E1299F9B290061ED99 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AEE86E0299F9B290061ED99 /* OpenGL.framework */; };
 		2AEE86E3299F9B3B0061ED99 /* libassimp.5.2.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AEE86E2299F9B3B0061ED99 /* libassimp.5.2.4.dylib */; };
 		2AEE86E5299F9B4A0061ED99 /* libglut.3.11.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AEE86E4299F9B4A0061ED99 /* libglut.3.11.1.dylib */; };
@@ -51,6 +51,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2A2D3F6F29A2556C001582BD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2AEE869D299F9A5A0061ED99 /* Assignment-4 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Assignment-4"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AEE86A7299F9A7F0061ED99 /* imgui */ = {isa = PBXFileReference; lastKnownFileType = folder; path = imgui; sourceTree = "<group>"; };
 		2AEE86A8299F9A7F0061ED99 /* res */ = {isa = PBXFileReference; lastKnownFileType = folder; path = res; sourceTree = "<group>"; };
@@ -90,7 +91,6 @@
 		2AEE86D8299F9AE20061ED99 /* Text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Text.h; sourceTree = "<group>"; };
 		2AEE86D9299F9AE20061ED99 /* Model.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Model.h; sourceTree = "<group>"; };
 		2AEE86DA299F9AE20061ED99 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
-		2AEE86DB299F9AE20061ED99 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2AEE86DD299F9AF10061ED99 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		2AEE86DE299F9AF10061ED99 /* Mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
 		2AEE86E0299F9B290061ED99 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -142,13 +142,13 @@
 				2AEE86A9299F9AA70061ED99 /* imgui_backends */,
 				2AEE86A7299F9A7F0061ED99 /* imgui */,
 				2AEE86A8299F9A7F0061ED99 /* res */,
-				2AEE86DD299F9AF10061ED99 /* Camera.h */,
+				2A2D3F6F29A2556C001582BD /* main.cpp */,
+				2AEE86D8299F9AE20061ED99 /* Text.h */,
 				2AEE86DE299F9AF10061ED99 /* Mesh.h */,
-				2AEE86DB299F9AE20061ED99 /* main.cpp */,
 				2AEE86D9299F9AE20061ED99 /* Model.h */,
 				2AEE86DA299F9AE20061ED99 /* Shader.h */,
-				2AEE86D8299F9AE20061ED99 /* Text.h */,
 				2AEE86D6299F9ADC0061ED99 /* Texture.h */,
+				2AEE86DD299F9AF10061ED99 /* Camera.h */,
 			);
 			path = "Assignment-4";
 			sourceTree = "<group>";
@@ -272,6 +272,7 @@
 			files = (
 				2AEE86B6299F9AA70061ED99 /* imgui_widgets.cpp in Sources */,
 				2AEE86B8299F9AA70061ED99 /* imgui_impl_opengl3.cpp in Sources */,
+				2A2D3F7029A2556C001582BD /* main.cpp in Sources */,
 				2AEE86B7299F9AA70061ED99 /* imgui.cpp in Sources */,
 				2AEE86D3299F9AAD0061ED99 /* image_DXT.c in Sources */,
 				2AEE86D4299F9AAD0061ED99 /* SOIL2.c in Sources */,
@@ -279,7 +280,6 @@
 				2AEE86BB299F9AA70061ED99 /* imgui_demo.cpp in Sources */,
 				2AEE86D2299F9AAD0061ED99 /* image_helper.c in Sources */,
 				2AEE86D5299F9AAD0061ED99 /* wfETC.c in Sources */,
-				2AEE86DC299F9AE20061ED99 /* main.cpp in Sources */,
 				2AEE86BA299F9AA70061ED99 /* imgui_impl_glfw.cpp in Sources */,
 				2AEE86BC299F9AA70061ED99 /* imgui_draw.cpp in Sources */,
 			);

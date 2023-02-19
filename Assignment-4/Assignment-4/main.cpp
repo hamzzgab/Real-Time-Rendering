@@ -49,7 +49,7 @@ void InitializeImGui();
 void RenderImGui();
 
 // Camera
-Camera camera( glm::vec3( 0.0f, 0.0f, 3.0f ) );
+Camera camera( glm::vec3( 0.0f, 3.0f, 13.0f ) );
 bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -186,8 +186,7 @@ int main( )
     
     glm::mat4 projection = glm::perspective( camera.GetZoom( ), ( float )SCREEN_WIDTH/( float )SCREEN_HEIGHT, 0.1f, 1000.0f );
     
-    Model Cube( "res/models/Cube.obj" );
-    Model TeaPot( "res/models/TeaPot_plane.obj" );
+    Model Cube( "res/models/Chessboard.obj" );
     InitializeImGui();
     
     // OpenGL state
@@ -242,8 +241,6 @@ int main( )
         
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(amtScaling));
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-//        model = glm::rotate(model, (GLfloat)glfwGetTime() * 0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         
         glUniformMatrix4fv( glGetUniformLocation( BumpMap.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
@@ -255,18 +252,7 @@ int main( )
         
         glUniform3f( lightDirLoc, DefaultLightDirection.light_direction.x, DefaultLightDirection.light_direction.y, DefaultLightDirection.light_direction.z);
         glUniform3f( viewPosLoc,  camera.GetPosition( ).x, camera.GetPosition( ).y, camera.GetPosition( ).z );
-        
-        if (CubeDraw)
-        {
-            Cube.Draw( BumpMap );
-        }
-        
-        if (TeaPotDraw)
-        {
-            TeaPot.Draw( BumpMap );
-        }
-        
-        text.RenderText(textShader, "", 10.0f, 30.0f, textScaling, textColor);
+        Cube.Draw( BumpMap );
     
         // Draw skybox as last
         glDepthFunc( GL_LEQUAL );
@@ -279,6 +265,47 @@ int main( )
         glDrawArrays( GL_TRIANGLES, 0, 36 );
         glBindVertexArray( 0 );
         glDepthFunc( GL_LESS );
+        
+        text.RenderText(textShader, "Minifying: ", 550.0f, 570.0f, textScaling, textColor);
+        if (NearNear)
+        {
+            text.RenderText(textShader, "Nearest MIPMAP Nearest", 620.0f, 570.0f, textScaling, textColor);
+            NearLinear = false;
+            LinearNear = false;
+            LinearLinear = false;
+        }
+        if (NearLinear)
+        {
+            text.RenderText(textShader, "Nearest MIPMAP Linear", 620.0f, 570.0f, textScaling, textColor);
+            NearNear = false;
+            LinearNear = false;
+            LinearLinear = false;
+        }
+        
+        if (LinearNear)
+        {
+            text.RenderText(textShader, "Linear MIPMAP Nearest", 620.0f, 570.0f, textScaling, textColor);
+            NearNear = false;
+            NearLinear = false;
+            LinearLinear = false;
+        }
+        if (LinearLinear)
+        {
+            text.RenderText(textShader, "Linear MIPMAP Linear", 620.0f, 570.0f, textScaling, textColor);
+            NearNear = false;
+            NearLinear = false;
+            LinearNear = false;
+        }
+        
+        text.RenderText(textShader, "Magnifying: ", 550.0f, 550.0f, textScaling, textColor);
+        if (MagLinear)
+        {
+            text.RenderText(textShader, "Linear", 630.0f, 550.0f, textScaling, textColor);
+        }
+        if (MagNearest)
+        {
+            text.RenderText(textShader, "Nearest", 630.0f, 550.0f, textScaling, textColor);
+        }
         
 
         RenderImGui();
@@ -317,19 +344,6 @@ void DoMovement( )
     {
         camera.ProcessKeyboard( RIGHT, deltaTime );
     }
-    
-    if ( keys[GLFW_KEY_1] )
-    {
-        CubeDraw = false;
-        TeaPotDraw = true;
-    }
-    
-    if ( keys[GLFW_KEY_2] )
-    {
-        CubeDraw = true;
-        TeaPotDraw = false;
-    }
-   
     
     if ( keys[GLFW_KEY_M] )
     {
@@ -403,18 +417,44 @@ void RenderImGui() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
     ImGui::Begin("ImGui Debugger");
-    if (ImGui::CollapsingHeader("Light Params")) {
-        if (ImGui::TreeNode("Light Direction")) {
-            if (ImGui::BeginTable("LightDirection", 3))
+    if (ImGui::CollapsingHeader("Props")) {
+        if (ImGui::TreeNode("LOD BIAS")) {
+            if (ImGui::BeginTable("LOD BIAS", 1))
             {
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("X", &DefaultLightDirection.light_direction.x, -5.0, 5.0f);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Y", &DefaultLightDirection.light_direction.y, -5.0, 5.0f);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Z", &DefaultLightDirection.light_direction.z, -5.0, 5.0f);
+                ImGui::SliderFloat("Lod Bias", &LodBias, 0.0f, 10.0f);
                 ImGui::EndTable();
             }
+            ImGui::TreePop();
+        }
+        
+        if (ImGui::TreeNode("Min Filter")) {
+            if (ImGui::BeginTable("Min Filter", 1))
+            {
+                ImGui::TableNextColumn();
+                ImGui::Checkbox("Min Near Near", &NearNear);
+                ImGui::TableNextColumn();
+                ImGui::Checkbox("Min Near Linear", &NearLinear);
+                ImGui::TableNextColumn();
+                ImGui::Checkbox("Min Linear Near", &LinearNear);
+                ImGui::TableNextColumn();
+                ImGui::Checkbox("Min Linear Linear", &LinearLinear);
+                ImGui::EndTable();
+            }
+
+            ImGui::TreePop();
+        }
+        
+        if (ImGui::TreeNode("Mag Filter")) {
+            if (ImGui::BeginTable("Mag Filter", 1))
+            {
+                ImGui::TableNextColumn();
+                ImGui::Checkbox("Mag Linear", &MagLinear);
+                ImGui::TableNextColumn();
+                ImGui::Checkbox("Mag Nearest", &MagNearest);
+                ImGui::EndTable();
+            }
+
             ImGui::TreePop();
         }
     }

@@ -46,7 +46,7 @@ private:
     void loadModel( string path )
     {
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile( path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace );
+        const aiScene *scene = importer.ReadFile( path, aiProcess_Triangulate | aiProcess_FlipUVs );
         
         if( !scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode ) // if is Not Zero
         {
@@ -96,12 +96,6 @@ private:
             vector.z = mesh->mNormals[i].z;
             vertex.Normal = vector;
             
-            // Tangent
-            vector.x = mesh->mTangents[i].x;
-            vector.y = mesh->mTangents[i].y;
-            vector.z = mesh->mTangents[i].z;
-            vertex.Tangent = vector;
-            
             // TEXTURE COORDINATES
             if( mesh->mTextureCoords[0] )
             {
@@ -142,10 +136,6 @@ private:
             // 2. SPECULAR MAPS
             vector<Texture> specularMaps = this->loadMaterialTextures( material, aiTextureType_SPECULAR, "texture_specular" );
             textures.insert( textures.end( ), specularMaps.begin( ), specularMaps.end( ) );
-            
-            // 3. Normal Maps
-            vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-            textures.insert( textures.end( ), normalMaps.begin( ), normalMaps.end( ) );
         }
         
         return Mesh( vertices, indices, textures );
@@ -206,8 +196,17 @@ GLint TextureFromFile( const char *path, string directory )
     
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, 1.0f);
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR );
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR );
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST );
+//        glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST );
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+//    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.0f );
+    
     glBindTexture( GL_TEXTURE_2D, 0 );
     SOIL_free_image_data( image );
     
