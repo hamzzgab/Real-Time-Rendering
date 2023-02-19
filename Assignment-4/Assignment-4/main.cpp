@@ -114,7 +114,7 @@ int main( )
     
     glEnable( GL_DEPTH_TEST );
     
-    Shader BumpMap( "res/shaders/normalMappingVS.vs", "res/shaders/normalMappingFS.frag" );
+    Shader MipMap( "res/shaders/MipMappingVS.vs", "res/shaders/MipMappingFS.frag" );
     Shader skyboxShader( "res/shaders/skybox.vs", "res/shaders/skybox.frag" );
 
     GLfloat skyboxVertices[] = {
@@ -234,25 +234,25 @@ int main( )
         glm::vec3 textColor = glm::vec3(1.0f, 1.0f, 1.0f);
         GLfloat textScaling = 0.3f;
         
-        BumpMap.Use( );
+        MipMap.Use( );
         
-        BumpMap.setInt("diffuseMap", 0);
-        BumpMap.setInt("normalMap", 1);
+        MipMap.setInt("diffuseMap", 0);
+        MipMap.setInt("normalMap", 1);
         
         model = glm::mat4(1.0f);
         model = glm::scale(model, glm::vec3(amtScaling));
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         
-        glUniformMatrix4fv( glGetUniformLocation( BumpMap.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-        glUniformMatrix4fv( glGetUniformLocation( BumpMap.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-        glUniformMatrix4fv( glGetUniformLocation( BumpMap.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
         
-        GLint lightDirLoc = glGetUniformLocation( BumpMap.Program, "lightPos" );
-        GLint viewPosLoc  = glGetUniformLocation( BumpMap.Program, "viewPos" );
+        GLint lightDirLoc = glGetUniformLocation( MipMap.Program, "lightPos" );
+        GLint viewPosLoc  = glGetUniformLocation( MipMap.Program, "viewPos" );
         
         glUniform3f( lightDirLoc, DefaultLightDirection.light_direction.x, DefaultLightDirection.light_direction.y, DefaultLightDirection.light_direction.z);
         glUniform3f( viewPosLoc,  camera.GetPosition( ).x, camera.GetPosition( ).y, camera.GetPosition( ).z );
-        Cube.Draw( BumpMap );
+        Cube.Draw( MipMap );
     
         // Draw skybox as last
         glDepthFunc( GL_LEQUAL );
