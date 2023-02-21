@@ -2,7 +2,7 @@
 
 ## About
 
-This is the fourth assignment for Real-Time Rendering (CS7GV3) at Trinity College Dublin. I have implemented different Mipmappings on a plane chessboard texture.
+This is the fourth assignment for Real-Time Rendering (CS7GV3) at Trinity College Dublin. I have implemented different Mip Mappings on a plane chessboard texture.
 
 ## Demonstration
 
