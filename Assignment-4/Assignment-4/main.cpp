@@ -61,8 +61,7 @@ glm::vec3 RefractiveIndexColor = glm::vec3(0.65f, 0.67f, 0.69f);
 GLfloat FresnelPower = 0.0f;
 
 bool mouseEnabled = true;
-bool TeaPotDraw = false;
-bool CubeDraw = true;
+bool rotatePlane = false;
 
 static GLFWwindow *window = nullptr;
 
@@ -85,7 +84,7 @@ int main( )
     glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
     glfwWindowHint( GLFW_RESIZABLE, GL_TRUE );
     
-    window = glfwCreateWindow( WIDTH, HEIGHT, "Normal Mapping", nullptr, nullptr );
+    window = glfwCreateWindow( WIDTH, HEIGHT, "Mipmapping", nullptr, nullptr );
     
     if ( nullptr == window )
     {
@@ -230,7 +229,7 @@ int main( )
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.GetViewMatrix();
         
-        GLfloat amtScaling = 1.0f;
+        GLfloat amtScaling = 2.0f;
         
         glm::vec3 textColor = glm::vec3(1.0f, 1.0f, 1.0f);
         GLfloat textScaling = 0.3f;
@@ -241,7 +240,11 @@ int main( )
         MipMap.setInt("normalMap", 1);
         
         model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(amtScaling));
+        model = glm::scale(model, glm::vec3(10.0f));
+        if (rotatePlane)
+        {
+            model = glm::rotate(model, (GLfloat)glfwGetTime()*0.25f, glm::vec3(0.0f, 1.0f, 0.0f));
+        }
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         
         glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
@@ -254,20 +257,6 @@ int main( )
         glUniform3f( lightDirLoc, DefaultLightDirection.light_direction.x, DefaultLightDirection.light_direction.y, DefaultLightDirection.light_direction.z);
         glUniform3f( viewPosLoc,  camera.GetPosition( ).x, camera.GetPosition( ).y, camera.GetPosition( ).z );
         Chessboard.Draw( MipMap );
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -10.0f));
-        model = glm::scale(model, glm::vec3(amtScaling*5.0f));
-        model = glm::rotate(model, (GLfloat)glfwGetTime()*0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
-
-        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-
-        glUniform3f( lightDirLoc, DefaultLightDirection.light_direction.x, DefaultLightDirection.light_direction.y, DefaultLightDirection.light_direction.z);
-        glUniform3f( viewPosLoc,  camera.GetPosition( ).x, camera.GetPosition( ).y, camera.GetPosition( ).z );
-        Teapot.Draw( MipMap );
         
         text.RenderText(textShader, "", 0.0f, 0.0f, 0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
         
@@ -389,6 +378,14 @@ void KeyCallback( GLFWwindow *window, int key, int scancode, int action, int mod
         else if ( action == GLFW_RELEASE )
         {
             keys[key] = false;
+        }
+    }
+    
+    if ( action == GLFW_PRESS )
+    {
+        if (keys[GLFW_KEY_R])
+        {
+            rotatePlane = !rotatePlane;
         }
     }
 }
