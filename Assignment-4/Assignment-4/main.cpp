@@ -186,7 +186,8 @@ int main( )
     
     glm::mat4 projection = glm::perspective( camera.GetZoom( ), ( float )SCREEN_WIDTH/( float )SCREEN_HEIGHT, 0.1f, 1000.0f );
     
-    Model Cube( "res/models/Chessboard.obj" );
+    Model Chessboard( "res/models/Chessboard.obj" );
+    Model Teapot( "res/models/Teapot.obj" );
     InitializeImGui();
     
     // OpenGL state
@@ -229,7 +230,7 @@ int main( )
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.GetViewMatrix();
         
-        GLfloat amtScaling = 0.75f;
+        GLfloat amtScaling = 1.0f;
         
         glm::vec3 textColor = glm::vec3(1.0f, 1.0f, 1.0f);
         GLfloat textScaling = 0.3f;
@@ -252,8 +253,24 @@ int main( )
         
         glUniform3f( lightDirLoc, DefaultLightDirection.light_direction.x, DefaultLightDirection.light_direction.y, DefaultLightDirection.light_direction.z);
         glUniform3f( viewPosLoc,  camera.GetPosition( ).x, camera.GetPosition( ).y, camera.GetPosition( ).z );
-        Cube.Draw( MipMap );
-    
+        Chessboard.Draw( MipMap );
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -10.0f));
+        model = glm::scale(model, glm::vec3(amtScaling*5.0f));
+        model = glm::rotate(model, (GLfloat)glfwGetTime()*0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
+        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
+        glUniformMatrix4fv( glGetUniformLocation( MipMap.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
+
+        glUniform3f( lightDirLoc, DefaultLightDirection.light_direction.x, DefaultLightDirection.light_direction.y, DefaultLightDirection.light_direction.z);
+        glUniform3f( viewPosLoc,  camera.GetPosition( ).x, camera.GetPosition( ).y, camera.GetPosition( ).z );
+        Teapot.Draw( MipMap );
+        
+        text.RenderText(textShader, "", 0.0f, 0.0f, 0.0f, glm::vec3(0.0f, 0.0f, 0.0f));
+        
         // Draw skybox as last
         glDepthFunc( GL_LEQUAL );
         skyboxShader.Use( );
