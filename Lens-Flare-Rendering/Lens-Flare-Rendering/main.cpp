@@ -80,14 +80,6 @@ static int Layers = 5;
 static float DiffuseWarm = -0.1;
 static float DiffuseCool = -1.0;
 
-bool phongModel = true;
-bool toonModel = false;
-bool goochModel = false;
-bool minnaertModel = false;
-bool orenNayarModel = false;
-
-bool changeTexture = false;
-
 // Camera
 Camera camera( glm::vec3( 0.0f, 0.0f, 3.0f ) );
 bool keys[1024];
@@ -249,12 +241,12 @@ int main( )
 
     // Cubemap (Skybox)
     vector<const GLchar*> faces;
-    faces.push_back( "res/images/skybox/Tower/px.png" );
-    faces.push_back( "res/images/skybox/Tower/nx.png" );
-    faces.push_back( "res/images/skybox/Tower/py.png" );
-    faces.push_back( "res/images/skybox/Tower/ny.png" );
-    faces.push_back( "res/images/skybox/Tower/pz.png" );
-    faces.push_back( "res/images/skybox/Tower/nz.png" );
+    faces.push_back( "res/images/skybox/Beach/px.png" );
+    faces.push_back( "res/images/skybox/Beach/nx.png" );
+    faces.push_back( "res/images/skybox/Beach/py.png" );
+    faces.push_back( "res/images/skybox/Beach/ny.png" );
+    faces.push_back( "res/images/skybox/Beach/pz.png" );
+    faces.push_back( "res/images/skybox/Beach/nz.png" );
     GLuint cubemapTexture = TextureLoading::LoadCubemap( faces );
 
     
@@ -354,8 +346,6 @@ int main( )
         
         glm::mat4 model = glm::mat4(1.0f);
        
-
-        
         blinnPhongShader.Use( );
         glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
         glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
@@ -364,6 +354,7 @@ int main( )
         glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
         TeaPot_Plane.Draw( blinnPhongShader );
         blinnPhongLighting( blinnPhongShader );
+        
         
         // Draw skybox as last
         glDepthFunc( GL_LEQUAL );
@@ -377,17 +368,21 @@ int main( )
         glBindVertexArray( 0 );
         glDepthFunc( GL_LESS );
         
+        
         // Bind the default framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        glDisable(GL_DEPTH_TEST); // prevents framebuffer rectangle from being discarded
+        glDisable(GL_DEPTH_TEST);
 
-        glDisable(GL_CULL_FACE); // prevents framebuffer rectangle from being discarded
-        // Draw the framebuffer rectangle
+        glDisable(GL_CULL_FACE);
+        
         framebufferProgram.Use();
+        glUniform1f( glGetUniformLocation( framebufferProgram.Program, "intensity" ), 10.0f );
+        glUniform1f( glGetUniformLocation( framebufferProgram.Program, "val" ), 2.0f );
         glBindVertexArray(rectVAO);
         glBindTexture(GL_TEXTURE_2D, framebufferTexture);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        
         
         RenderImGui();
         // Swap the buffers
@@ -420,55 +415,6 @@ void DoMovement( )
     if ( keys[GLFW_KEY_D] || keys[GLFW_KEY_RIGHT] )
     {
         camera.ProcessKeyboard( RIGHT, deltaTime );
-    }
-
-    if ( keys[GLFW_KEY_P] )
-    {
-        phongModel = true;
-        toonModel = false;
-        goochModel = false;
-        minnaertModel = false;
-        orenNayarModel = false;
-    }
-    if ( keys[GLFW_KEY_T] )
-    {
-        phongModel = false;
-        toonModel = true;
-        goochModel = false;
-        minnaertModel = false;
-        orenNayarModel = false;
-    }
-    if ( keys[GLFW_KEY_G] )
-    {
-        phongModel = false;
-        toonModel = false;
-        goochModel = true;
-        minnaertModel = false;
-        orenNayarModel = false;
-    }
-    if ( keys[GLFW_KEY_M] )
-    {
-        phongModel = false;
-        toonModel = false;
-        goochModel = false;
-        minnaertModel = true;
-        orenNayarModel = false;
-    }
-    if ( keys[GLFW_KEY_O] )
-    {
-        phongModel = false;
-        toonModel = false;
-        goochModel = false;
-        minnaertModel = false;
-        orenNayarModel = true;
-    }
-    if ( keys[GLFW_KEY_Q] )
-    {
-        changeTexture = false;
-    }
-    if ( keys[GLFW_KEY_E] )
-    {
-        changeTexture = true;
     }
 }
 
@@ -544,111 +490,6 @@ void RenderImGui() {
                     ImGui::EndTable();
                 }
                 ImGui::TreePop();
-            }
-            if (ImGui::TreeNode("Diffuse Color")) {
-                if (ImGui::BeginTable("ColorAttributes_2", 3))
-                {
-                    ImGui::TableNextColumn();
-                    ImGui::SliderFloat("R", &DefaultLightColor.diffuse_color.r, -1.0, 1.0);
-                    ImGui::TableNextColumn();
-                    ImGui::SliderFloat("G", &DefaultLightColor.diffuse_color.g, -1.0, 1.0);
-                    ImGui::TableNextColumn();
-                    ImGui::SliderFloat("B", &DefaultLightColor.diffuse_color.b, -1.0, 1.0);
-                    ImGui::EndTable();
-                }
-                ImGui::TreePop();
-            }
-            if (ImGui::TreeNode("Specular Color")) {
-                if (ImGui::BeginTable("ColorAttributes_3", 3))
-                {
-                    ImGui::TableNextColumn();
-                    ImGui::SliderFloat("R", &DefaultLightColor.specular_color.r, -1.0, 1.0);
-                    ImGui::TableNextColumn();
-                    ImGui::SliderFloat("G", &DefaultLightColor.specular_color.g, -1.0, 1.0);
-                    ImGui::TableNextColumn();
-                    ImGui::SliderFloat("B", &DefaultLightColor.specular_color.b, -1.0, 1.0);
-                    ImGui::EndTable();
-                }
-                ImGui::TreePop();
-            }
-            ImGui::TreePop();
-        }
-        
-        
-        
-        
-        if (ImGui::TreeNode("Light Direction")) {
-            if (ImGui::BeginTable("LightDirection", 3))
-            {
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("X", &DefaultLightDirection.light_direction.x, -5.0, 5.0f);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Y", &DefaultLightDirection.light_direction.y, -5.0, 5.0f);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Z", &DefaultLightDirection.light_direction.z, -5.0, 5.0f);
-                ImGui::EndTable();
-            }
-            ImGui::TreePop();
-        }
-        
-        if (ImGui::TreeNode("Parameters")) {
-            if (ImGui::BeginTable("LightingParameters", 1))
-            {
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("Material Shininess", &MaterialShininess, 1.0, 250.0);
-                ImGui::Checkbox("Blinn", &BlinnEnabled);
-                ImGui::SliderInt("Layers", &Layers, 1, 6);
-                
-                if (ImGui::TreeNode("Gooch Shader")) {
-                    if (ImGui::TreeNode("Surface Color")) {
-                        if (ImGui::BeginTable("ColorAttributes_1", 3))
-                        {
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("R", &DefaultGoochColor.SurfaceColor.r, 0.0, 1.0);
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("G", &DefaultGoochColor.SurfaceColor.g, 0.0, 1.0);
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("B", &DefaultGoochColor.SurfaceColor.b, 0.0, 1.0);
-                            ImGui::EndTable();
-                        }
-                        ImGui::TreePop();
-                    }
-                    if (ImGui::TreeNode("Warm Color")) {
-                        if (ImGui::BeginTable("ColorAttributes_1", 3))
-                        {
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("R", &DefaultGoochColor.WarmColor.r, 0.0, 1.0);
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("G", &DefaultGoochColor.WarmColor.g, 0.0, 1.0);
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("B", &DefaultGoochColor.WarmColor.b, 0.0, 1.0);
-                            ImGui::EndTable();
-                        }
-                        ImGui::TreePop();
-                    }
-                    if (ImGui::TreeNode("Cool Color")) {
-                        if (ImGui::BeginTable("ColorAttributes_1", 3))
-                        {
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("R", &DefaultGoochColor.CoolColor.r, 0.0, 1.0);
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("G", &DefaultGoochColor.CoolColor.g, 0.0, 1.0);
-                            ImGui::TableNextColumn();
-                            ImGui::SliderFloat("B", &DefaultGoochColor.CoolColor.b, 0.0, 1.0);
-                            ImGui::EndTable();
-                        }
-                        ImGui::TreePop();
-                    }
-                    ImGui::SliderFloat("Diffuse Warm", &DiffuseWarm, -1, 1);
-                    ImGui::SliderFloat("Diffuse Cool", &DiffuseCool, -1, 1);
-                    
-                    ImGui::TreePop();
-                }
-                
-                ImGui::SliderFloat("Darken Coefficient", &DarkenCoefficient, -2.0, 5.0);
-                ImGui::SliderFloat("Albedo", &Albedo, -5, 5);
-                ImGui::SliderFloat("Roughness", &Roughness, 0, 10);
-                ImGui::EndTable();
             }
             ImGui::TreePop();
         }
