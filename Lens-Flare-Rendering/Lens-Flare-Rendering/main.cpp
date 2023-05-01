@@ -107,6 +107,7 @@ GLfloat distortion = 0.001f;
 // BLURRING
 bool blurIt = false;
 
+// LIGHTING FUNCTION
 void blinnPhongLighting(Shader shader){
     GLint lightDirLoc = glGetUniformLocation( shader.Program, "light.direction" );
     GLint viewPosLoc  = glGetUniformLocation( shader.Program, "viewPos" );
@@ -179,14 +180,13 @@ int main( )
     // OpenGL options
     glEnable( GL_DEPTH_TEST );
     
-    // Setup and compile our shaders
+    // Shaders
     Shader blinnPhongShader( "res/shaders/lensflare.vs", "res/shaders/lensflare.frag" );
     Shader framebufferProgram( "res/shaders/frameBuffer.vs", "res/shaders/frameBuffer.frag" );
     Shader skyboxShader( "res/shaders/skybox.vs", "res/shaders/skybox.frag" );
-    
-    Shader Reflection( "res/shaders/reflection.vs", "res/shaders/reflection.frag" );
-    Shader Refraction( "res/shaders/refraction.vs", "res/shaders/refraction.frag" );
 
+    // Skybox START
+    // ------------
     GLfloat skyboxVertices[] = {
             // positions
             -1.0f,  1.0f, -1.0f,
@@ -231,8 +231,7 @@ int main( )
             -1.0f, -1.0f,  1.0f,
              1.0f, -1.0f,  1.0f
         };
-
-    // Setup skybox VAO
+    
     GLuint skyboxVAO, skyboxVBO;
     glGenVertexArrays( 1, &skyboxVAO );
     glGenBuffers( 1, &skyboxVBO );
@@ -252,14 +251,12 @@ int main( )
     faces.push_back( "res/images/skybox/Beach/pz.png" );
     faces.push_back( "res/images/skybox/Beach/nz.png" );
     GLuint cubemapTexture = TextureLoading::LoadCubemap( faces );
-
+    // ----------
+    // Skybox END
     
+
     // Load models
     Model TeaPot_Plane( "res/models/TeaPot.obj" );
-    
-    // Draw in wireframe
-    //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    
     glm::mat4 projection = glm::perspective( camera.GetZoom( ), ( float )SCREEN_WIDTH/( float )SCREEN_HEIGHT, 0.1f, 100.0f );
     
     InitializeImGui();
@@ -270,8 +267,8 @@ int main( )
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    // compile and setup the shader
-    // ----------------------------
+    // Shader Setup for Rendering Text
+    // -------------------------------
     Shader textShader("res/shaders/text.vs", "res/shaders/text.frag");
     textShader.Use();
     glm::mat4 projection_text = glm::ortho(0.0f, (float)SCREEN_WIDTH, 0.0f, (float)SCREEN_HEIGHT);
@@ -279,6 +276,8 @@ int main( )
     
     Text text;
     
+    // Framebuffer Setup START
+    // -----------------------
     framebufferProgram.Use();
     glUniform1i(glGetUniformLocation(framebufferProgram.Program, "screenTexture"), 0);
     
@@ -319,6 +318,9 @@ int main( )
     {
         std::cout << "Framebuffer error: " << fboStatus << std::endl;
     }
+    // -----------------------
+    // Framebuffer Setup END
+    
     
     // Game loop
     while( !glfwWindowShouldClose( window ) )
