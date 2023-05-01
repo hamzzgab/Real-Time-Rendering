@@ -1,4 +1,3 @@
-
 #version 330 core
 
 in vec2 texCoords;
@@ -85,7 +84,7 @@ void main()
     weight = pow(1.0 - weight, uHaloWeight);
     result += texture(screenTexture, texcoord + haloVec) * weight;
     
-//    vec2 texelSize = 1.0 / vec2(textureSize(screenTexture, 0));
+    // DISTORTION
     vec2 texelSize = 1.0 / vec2(0.25f, 0.25f);
     vec3 distortion = vec3(-texelSize.x * uDistortion, 0.0, texelSize.x * uDistortion);
     vec2 direction = normalize(ghostVec);

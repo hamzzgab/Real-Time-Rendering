@@ -52,13 +52,6 @@ typedef struct light_colors {
 }
 LightColor;
 
-typedef struct gooch_colors {
-    glm::vec3 SurfaceColor;
-    glm::vec3 WarmColor;
-    glm::vec3 CoolColor;
-}
-GoochColor;
-
 typedef struct light_property {
     glm::vec3 light_direction;
 }
@@ -68,19 +61,10 @@ static LightColor DefaultLightColor;
 static LightDirection DefaultLightDirection;
 
 static bool BlinnEnabled = false;
-
-static float DarkenCoefficient = 0.8f;
 static float MaterialShininess = 12.0f;
-static float Albedo = 3.0f;
-static float Roughness = 0.1f;
-static int Layers = 5;
-
-static float DiffuseWarm = -0.1;
-static float DiffuseCool = -1.0;
-
-bool cameraOn = true;
 
 // Camera
+bool cameraOn = true;
 Camera camera( glm::vec3( 0.0f, 0.0f, 3.0f ) );
 bool keys[1024];
 GLfloat lastX = 400, lastY = 300;
@@ -140,21 +124,6 @@ void blinnPhongLighting(Shader shader){
     glUniform1f( glGetUniformLocation( shader.Program, "shininess" ), MaterialShininess );
 }
 
-
-glm::vec3 RefractiveIndexColor = glm::vec3(0.65f, 0.67f, 0.69f);
-GLfloat FresnelPower = 0.0f;
-
-void refractance_with_chromatic_abberation(Shader shader, glm::mat4 model, glm::mat4 view, glm::mat4 projection)
-{
-    glUniformMatrix4fv( glGetUniformLocation( shader.Program, "model" ), 1, GL_FALSE, glm::value_ptr( model ) );
-    glUniformMatrix4fv( glGetUniformLocation( shader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
-    glUniformMatrix4fv( glGetUniformLocation( shader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
-    
-    glm::vec3 camPos = camera.GetPosition();
-    glUniform3f( glGetUniformLocation( shader.Program, "fCameraPosition" ), camPos.x, camPos.y, camPos.z);
-    glUniform3f( glGetUniformLocation( shader.Program, "refractiveIndexRGB" ), RefractiveIndexColor.r, RefractiveIndexColor.g, RefractiveIndexColor.b );
-    glUniform1f( glGetUniformLocation( shader.Program, "FresnelPower" ), FresnelPower );
-}
 
 static GLFWwindow *window = nullptr;
 int main( )
