@@ -17,15 +17,8 @@ uniform float uGhostWeight = 0.5f;
 uniform float uHaloWidth = 0.25f;
 uniform float uHaloWeight = 10.0f;
 
-
 // DISTORTION
 uniform float uDistortion;
-
-// BLURRING
-uniform bool uBlurIt;
-const float offset = 1.0 / 300.0;
-
-
 vec4 textureDistorted(in sampler2D tex, in vec2 texcoord, in vec2 direction, in vec3 distortion)
 {
   return vec4(
@@ -35,9 +28,14 @@ vec4 textureDistorted(in sampler2D tex, in vec2 texcoord, in vec2 direction, in 
   );
 }
 
+
+// BLURRING
+uniform bool uBlurIt;
+const float offset = 1.0 / 300.0;
+
 void main()
 {
-    
+    // GAUSSIAN BLURRING
     vec2 offsets[9] = vec2[](
         vec2(-offset,  offset), // top-left
         vec2( 0.0f,    offset), // top-center
@@ -61,7 +59,8 @@ void main()
     {
         sampleTex[i] = vec3(texture(screenTexture, texCoords.st + offsets[i]));
     }
-
+    
+    // FLIPPING TEXCOORDS
     vec2 texcoord = -texCoords + vec2(1.0);
 
     // GHOST SAMPLING
@@ -70,11 +69,8 @@ void main()
 
      for (int i = 0; i < uGhosts; ++i) {
         vec2 offset = fract(texcoord + ghostVec * float(i));
-
         float weight = length(vec2(0.5) - offset) / length(vec2(0.5));
-
         weight = pow(1.0 - weight, uGhostWeight);
-
         result += texture(screenTexture, offset) * weight;
      }
     
@@ -84,11 +80,10 @@ void main()
     weight = pow(1.0 - weight, uHaloWeight);
     result += texture(screenTexture, texcoord + haloVec) * weight;
     
-    // DISTORTION
+    // CHROMATIC DISTORTION
     vec2 texelSize = 1.0 / vec2(0.25f, 0.25f);
     vec3 distortion = vec3(-texelSize.x * uDistortion, 0.0, texelSize.x * uDistortion);
     vec2 direction = normalize(ghostVec);
-
     result += textureDistorted(screenTexture, texcoord, direction, distortion);
 
     vec3 col = vec3(result);
