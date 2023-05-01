@@ -101,18 +101,27 @@ float rectangleVertices[] =
     -1.0f,  1.0f,  0.0f, 1.0f
 };
 
-glm::vec4 scale = glm::vec4(0.5);
-glm::vec4 bias = glm::vec4(0.5);
+// DOWNSAMPLING
+GLfloat scaleFloat = 0.5f;
+GLfloat biasFloat = 0.5f;
 
+glm::vec4 scale = glm::vec4(scaleFloat);
+glm::vec4 bias  = glm::vec4(biasFloat);
 
 // GHOSTS
 GLint numGhosts = 2;
-GLfloat ghostDispersal = 0.0001f;
-GLfloat ghostWeight = 10.0f;
+GLfloat ghostDispersal = 0.033f;
+GLfloat ghostWeight = 20.0f;
 
 // HALO
-GLfloat haloWidth = 0.25f;
-GLfloat haloWeight = 10.0f;
+GLfloat haloWidth = 0.091f;
+GLfloat haloWeight = 20.0f;
+
+// DISTORTION
+GLfloat distortion = 0.001f;
+
+// BLURRING
+bool blurIt = false;
 
 void blinnPhongLighting(Shader shader){
     GLint lightDirLoc = glGetUniformLocation( shader.Program, "light.direction" );
@@ -167,7 +176,7 @@ int main( )
     glfwWindowHint( GLFW_RESIZABLE, GL_TRUE );
     
     // Create a GLFWwindow object that we can use for GLFW's functions
-    window = glfwCreateWindow( WIDTH, HEIGHT, "Reflectance Models", nullptr, nullptr );
+    window = glfwCreateWindow( WIDTH, HEIGHT, "Lens Flare Rendering", nullptr, nullptr );
     
     if ( nullptr == window )
     {
@@ -414,14 +423,25 @@ int main( )
         
         framebufferProgram.Use();
         
-        glUniformMatrix4fv ( glGetUniformLocation( framebufferProgram.Program, "uScale" ), 1, GL_FALSE, glm::value_ptr( scale ) );
-        glUniformMatrix4fv ( glGetUniformLocation( framebufferProgram.Program, "uBias" ), 1, GL_FALSE, glm::value_ptr( bias ) );
+        
+        scale = glm::vec4(scaleFloat);
+        bias = glm::vec4(biasFloat);
+        
+        glUniform4f( glGetUniformLocation( framebufferProgram.Program, "uScale" ), scale.x, scale.y, scale.z, scale.w );
+        glUniform4f( glGetUniformLocation( framebufferProgram.Program, "uBias" ), bias.x, bias.y, bias.z, bias.w );
+        
         glUniform1i( glGetUniformLocation( framebufferProgram.Program, "uGhosts" ), numGhosts );
         glUniform1f( glGetUniformLocation( framebufferProgram.Program, "uGhostDispersal" ), ghostDispersal );
         glUniform1f( glGetUniformLocation( framebufferProgram.Program, "uGhostWeight" ), ghostWeight );
         
         glUniform1f( glGetUniformLocation( framebufferProgram.Program, "uHaloWidth" ), haloWidth );
         glUniform1f( glGetUniformLocation( framebufferProgram.Program, "uHaloWeight" ), haloWeight );
+        
+        glUniform1f( glGetUniformLocation( framebufferProgram.Program, "uDistortion" ), distortion );
+        
+        glUniform1i( glGetUniformLocation( framebufferProgram.Program, "uBlurIt" ), blurIt ? 1 : 0 );
+        
+        cout<<distortion<<endl;
         
         glBindVertexArray(rectVAO);
         glBindTexture(GL_TEXTURE_2D, framebufferTexture);
@@ -535,31 +555,24 @@ void RenderImGui() {
         
         if (ImGui::TreeNode("Scale")) {
             
-            if (ImGui::BeginTable("ThresholdAttrib_1", 4))
+            if (ImGui::BeginTable("ThresholdAttrib_1", 1))
             {
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("R", &scale.r, -1.0, 1.0);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("G", &scale.g, -1.0, 1.0);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("B", &scale.b, -1.0, 1.0);
-                ImGui::TableNextColumn();
-                ImGui::SliderFloat("A", &scale.a, -1.0, 1.0);
+                ImGui::SliderFloat("Scale", &scaleFloat, 0, 1);
                 ImGui::EndTable();
             }
             ImGui::TreePop();
         }
-//        if (ImGui::TreeNode("Bias")) {
-//
-//            if (ImGui::BeginTable("ThresholdAttrib_2", 4))
-//            {
-//                ImGui::TableNextColumn();
-//                ImGui::SliderFloat("Bias", &bias, -1.0, 1.0);
-//                ImGui::EndTable();
-//            }
-//            ImGui::TreePop();
-//        }
-        
+        if (ImGui::TreeNode("Bias")) {
+            
+            if (ImGui::BeginTable("ThresholdAttrib_2", 1))
+            {
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("Bias", &biasFloat, 0, 1);
+                ImGui::EndTable();
+            }
+            ImGui::TreePop();
+        }
         if (ImGui::TreeNode("Ghost Params")) {
             
             if (ImGui::BeginTable("Ghosts", 1))
@@ -567,9 +580,9 @@ void RenderImGui() {
                 ImGui::TableNextColumn();
                 ImGui::SliderInt("Number", &numGhosts, 1, 20);
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("Dispersal", &ghostDispersal, -1.0, 1.0);
+                ImGui::SliderFloat("Dispersal", &ghostDispersal, -1.0, 0.5);
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("Weight", &ghostWeight, -20.0, 20.0);
+                ImGui::SliderFloat("Weight", &ghostWeight, 2.0, 20.0);
                 ImGui::EndTable();
             }
             ImGui::TreePop();
@@ -580,9 +593,31 @@ void RenderImGui() {
             if (ImGui::BeginTable("Halo", 1))
             {
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("Width", &haloWidth, 0, 1);
+                ImGui::SliderFloat("Width", &haloWidth, 0, 0.5);
                 ImGui::TableNextColumn();
-                ImGui::SliderFloat("Weidht", &haloWeight, -20.0, 20.0);
+                ImGui::SliderFloat("Weidht", &haloWeight, 5.0, 20.0);
+                ImGui::EndTable();
+            }
+            ImGui::TreePop();
+        }
+        
+        if (ImGui::TreeNode("Distortion Params")) {
+            
+            if (ImGui::BeginTable("Distortion", 1))
+            {
+                ImGui::TableNextColumn();
+                ImGui::SliderFloat("Distortion", &distortion, -0.05, 0.05);
+                ImGui::EndTable();
+            }
+            ImGui::TreePop();
+        }
+        
+        if (ImGui::TreeNode("Blurring")) {
+            
+            if (ImGui::BeginTable("Blurring", 1))
+            {
+                ImGui::TableNextColumn();
+                ImGui::Checkbox("Blur", &blurIt);
                 ImGui::EndTable();
             }
             ImGui::TreePop();
