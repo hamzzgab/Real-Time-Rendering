@@ -325,7 +325,7 @@ int main( )
     // Game loop
     while( !glfwWindowShouldClose( window ) )
     {
-        
+        // Camera On Off Logic
         if (!cameraOn)
         {
             glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
@@ -335,7 +335,7 @@ int main( )
             glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
         }
         
-        // Set frame time
+        // Set Frame Time
         GLfloat currentFrame = glfwGetTime( );
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -355,13 +355,9 @@ int main( )
         
 
         glm::mat4 view = camera.GetViewMatrix( );
-        
-        GLfloat degRotation = -30.0f;
-        GLfloat amtScaling = 1.0f;
-        glm::vec3 textColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        
         glm::mat4 model = glm::mat4(1.0f);
        
+        // Drawing the model
         blinnPhongShader.Use( );
         glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "projection" ), 1, GL_FALSE, glm::value_ptr( projection ) );
         glUniformMatrix4fv( glGetUniformLocation( blinnPhongShader.Program, "view" ), 1, GL_FALSE, glm::value_ptr( view ) );
@@ -372,7 +368,7 @@ int main( )
         blinnPhongLighting( blinnPhongShader );
         
         
-        // Draw skybox as last
+        // Drawing skybox
         glDepthFunc( GL_LEQUAL );
         skyboxShader.Use( );
         view = glm::mat4( glm::mat3( camera.GetViewMatrix( ) ) );
@@ -383,21 +379,17 @@ int main( )
         glDrawArrays( GL_TRIANGLES, 0, 36 );
         glBindVertexArray( 0 );
         glDepthFunc( GL_LESS );
-        
-        
-        // Bind the default framebuffer
+                
+        // Binding the framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
         glDisable(GL_DEPTH_TEST);
-
         glDisable(GL_CULL_FACE);
-        
         framebufferProgram.Use();
-        
         
         scale = glm::vec4(scaleFloat);
         bias = glm::vec4(biasFloat);
         
+        // Setting the values in Framebuffer
         glUniform4f( glGetUniformLocation( framebufferProgram.Program, "uScale" ), scale.x, scale.y, scale.z, scale.w );
         glUniform4f( glGetUniformLocation( framebufferProgram.Program, "uBias" ), bias.x, bias.y, bias.z, bias.w );
         
@@ -412,14 +404,14 @@ int main( )
         
         glUniform1i( glGetUniformLocation( framebufferProgram.Program, "uBlurIt" ), blurIt ? 1 : 0 );
         
-        cout<<distortion<<endl;
         
         glBindVertexArray(rectVAO);
         glBindTexture(GL_TEXTURE_2D, framebufferTexture);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         
-        
+        // ImGui
         RenderImGui();
+        
         // Swap the buffers
         glfwSwapBuffers( window );
     }
